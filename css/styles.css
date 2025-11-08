@@ -1,0 +1,159 @@
+/* Estilos de Fundo para o Tema Escuro */
+    body {
+      background-color: #0f172a;
+      margin: 0;
+    }
+
+    /* Estilos de Fundo, Donut e Ranks (Mantidos) */
+    .metric-value {
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+
+    /* Estilos para Badges de Ranking (Personalizados - Mantidos) */
+    .rank-badge {
+      font-size: 0.7rem;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      line-height: 1;
+      background-color: #374151;
+      color: #E5E7EB;
+    }
+
+    .rank-challenger {
+      background-color: #FFC107;
+      color: #1E293B;
+    }
+
+    .rank-grandmaster {
+      background-color: #E91E63;
+      color: #E5E7EB;
+    }
+
+    .rank-master {
+      background-color: #9C27B0;
+      color: #E5E7EB;
+    }
+
+    .rank-diamond {
+      background-color: #00BCD4;
+      color: #1E293B;
+    }
+
+    .rank-emerald {
+      background-color: #4CAF50;
+      color: #1E293B;
+    }
+
+    .rank-platinum {
+      background-color: #81D4FA;
+      color: #1E293B;
+    }
+
+    .rank-gold {
+      background-color: #FACC15;
+      color: #1E293B;
+    }
+
+    .rank-silver {
+      background-color: #BDBDBD;
+      color: #1E293B;
+    }
+
+    .rank-bronze {
+      background-color: #8D6E63;
+      color: #E5E7EB;
+    }
+
+    .rank-iron {
+      background-color: #424242;
+      color: #E5E7EB;
+    }
+
+    /* Estilo para a informação secundária (Nível e País) */
+    .student-meta {
+      font-size: 0.7rem;
+      color: #94A3B8;
+      /* Slate 400 */
+      line-height: 1.2;
+    }
+
+    /* Estilo para o Nível de Fluência (Ajustado para mais texto) */
+    .level-badge {
+      font-size: 0.6rem;
+      font-weight: bold;
+      padding: 1px 4px;
+      border-radius: 4px;
+      background-color: #475569;
+      /* Slate 600 */
+      color: #E2E8F0;
+      /* Slate 200 */
+      margin-left: 4px;
+      /* Garante que o texto se ajuste, se necessário */
+      white-space: nowrap;
+    }
+
+    /* Estilo para o item da lista ser clicável e responsivo */
+    .list-item-clickable {
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      transition: background-color 0.2s;
+      cursor: pointer;
+      display: block;
+    }
+
+    .list-item-clickable:hover {
+      background-color: #334155;
+    }
+
+    /* NOVO Estilo para simular o gráfico de Donut (Moderno e 3D) */
+    .donut-chart-modern {
+      /* Conic Gradient para o Anel (Cores Modernas) */
+      background: conic-gradient(#a78bfa 0% 40%,
+          /* Roxo (40%) */
+          #38bdf8 40% 70%,
+          /* Ciano Claro (30%) */
+          #f472b6 70% 90%,
+          /* Pink (20%) */
+          #facc15 90% 100%
+          /* Amarelo (10%) */
+        );
+      border-radius: 50%;
+      height: 140px;
+      width: 140px;
+      position: relative;
+      /* Sombra/Glow para um efeito moderno */
+      box-shadow: 0 0 15px rgba(167, 139, 250, 0.2);
+      /* Transição para o efeito de hover */
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+      cursor: pointer;
+    }
+
+    .donut-chart-modern:hover {
+      transform: scale(1.05);
+      /* Efeito de Zoom */
+      box-shadow: 0 0 20px rgba(167, 139, 250, 0.6);
+    }
+
+    /* Cria o 'buraco' central para o efeito Donut e contém o texto */
+    .donut-chart-hole {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      height: 80px;
+      width: 80px;
+      background-color: #1e293b;
+      /* Cor do fundo do painel (Slate 800) */
+      border-radius: 50%;
+      border: 3px solid #334155;
+      /* Borda sutil */
+      /* Centraliza o texto interno */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
