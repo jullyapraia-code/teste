@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Geral - Foco na Coluna Central (Ajuste Final)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      /* Estilos de Fundo para o Tema Escuro */
+      body {
+        background-color: #0f172a;
+        margin: 0;
+      }
+
+      /* NOVO Estilo para simular o gráfico de Donut (Moderno e 3D) */
+      .donut-chart-modern {
+        /* Conic Gradient para o Anel (Cores Modernas) */
+        background: conic-gradient(
+          #a78bfa 0% 40%,
+          /* Roxo (40%) */ #38bdf8 40% 70%,
+          /* Ciano Claro (30%) */ #f472b6 70% 90%,
+          /* Pink (20%) */ #facc15 90% 100% /* Amarelo (10%) */
+        );
+        border-radius: 50%;
+        height: 140px;
+        width: 140px;
+        position: relative;
+        /* Sombra/Glow para um efeito moderno */
+        box-shadow: 0 0 15px rgba(167, 139, 250, 0.2);
+        /* Transição para o efeito de hover */
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+        cursor: pointer;
+      }
+      .donut-chart-modern:hover {
+        transform: scale(1.05); /* Efeito de Zoom */
+        box-shadow: 0 0 20px rgba(167, 139, 250, 0.6);
+      }
+
+      /* Cria o 'buraco' central para o efeito Donut e contém o texto */
+      .donut-chart-hole {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        height: 80px;
+        width: 80px;
+        background-color: #1e293b; /* Cor do fundo do painel (Slate 800) */
+        border-radius: 50%;
+        border: 3px solid #334155; /* Borda sutil */
+        /* Centraliza o texto interno */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+    </style>
+    
+  </head>
+  <body class="p-0">
+    <header
+      class="w-full flex justify-center bg-slate-900 border-b border-slate-700 p-4"
+    >
+      <div class="w-full text-center text-xl text-indigo-400 font-bold">
+        <div
+          class="max-w-7xl w-full flex flex-col md:flex-row justify-between items-center text-white p-3 sm:p-4 bg-slate-900 border-b border-slate-700 shadow-lg"
+        >
+          <div class="flex items-center mb-3 md:mb-0">
+            <i
+              data-lucide="graduation-cap"
+              class="w-8 h-8 mr-3 text-indigo-400"
+            ></i>
+            <div class="flex flex-col items-start">
+              <span class="text-xl font-bold text-white leading-tight"
+                >Plataforma Tutor</span
+              >
+              <span
+                class="text-sm text-slate-300 font-medium mt-0.5 flex items-center"
+              >
+                <i data-lucide="mail" class="w-4 h-4 mr-1 text-slate-400"></i>
+                usuario.logado@gmail.com
+              </span>
+            </div>
+          </div>
+
+          <div
+            class="flex flex-wrap items-center justify-center gap-3 text-sm font-medium"
+          >
+            <div
+              class="bg-green-900/40 p-2 rounded-lg border border-green-600 flex items-center min-w-[100px] justify-between"
+            >
+              <div class="flex flex-col">
+                <span class="text-slate-400 text-xs">Dólar Atual</span>
+                <span class="metric-value text-green-300" id="cotacao-dolar"
+                  >R$ 5,00</span
+                >
+              </div>
+              <button
+                id="btn-refresh"
+                class="text-green-400 hover:text-green-300 ml-2 transition duration-150 p-1 rounded-full"
+                title="Atualizar cotação agora"
+              >
+                <i
+                  id="icon-refresh"
+                  data-lucide="rotate-cw"
+                  class="w-4 h-4"
+                ></i>
+              </button>
+            </div>
+
+            <div
+              class="bg-red-900/40 p-2 rounded-lg border border-red-600 min-w-[120px]"
+            >
+              <span class="text-slate-400 text-xs block">Taxa (1,5%)</span>
+              <span class="metric-value text-red-300" id="desconto-usd"
+                >US$ 0,15</span
+              >
+            </div>
+
+            <div
+              class="bg-indigo-900/40 p-2 rounded-lg border border-indigo-600 min-w-[120px]"
+            >
+              <span class="text-slate-400 text-xs block"
+                >Valor Líquido (USD)</span
+              >
+              <span class="metric-value text-indigo-300" id="total-bruto-usd"
+                >US$ 9,85</span
+              >
+            </div>
+
+            <div
+              class="bg-yellow-900/40 p-2 rounded-lg border border-yellow-600 min-w-[120px]"
+            >
+              <span class="text-slate-400 text-xs block">Total em Reais</span>
+              <span class="metric-value text-yellow-300" id="total-liquido-brl"
+                >R$ 49,25</span
+              >
+            </div>
+
+            <button
+              class="p-2 sm:p-3 rounded-full bg-slate-700 hover:bg-slate-600 transition duration-150 ml-2"
+            >
+              <i data-lucide="menu" class="w-6 h-6 text-white"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="w-full p-4 sm:p-8">
+      <div class="flex flex-col md:flex-row gap-6">
+        <section
+          id="coluna-esquerda"
+          class="w-full md:w-1/5 bg-slate-800 p-4 rounded-lg border border-slate-700 min-h-[500px] text-white"
+        >
+          <h3
+            class="text-lg font-bold text-indigo-400 border-b border-indigo-600 pb-2 mb-4 flex items-center"
+          >
+            <i data-lucide="users" class="w-5 h-5 mr-2"></i> Lista de Alunos
+          </h3>
+          <p class="text-sm text-slate-400">
+            *** COLAR ALUNOS AQUI (ESQUERDA) ***
+          </p>
+        </section>
+
+        <section
+          id="coluna-centro"
+          class="w-full md:w-3/5 bg-slate-800 p-4 rounded-lg border border-slate-700 min-h-[500px] text-white"
+        >
+          <h3
+            class="text-xl font-bold text-yellow-400 border-b border-yellow-600 pb-2 mb-4 flex items-center"
+          >
+            <i data-lucide="bar-chart-3" class="w-6 h-6 mr-2"></i> Estatísticas
+            Globais
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <div
+              class="p-4 rounded-lg bg-slate-700/50 border border-slate-600 shadow-md"
+            >
+              <h4 class="text-center text-base font-semibold mb-4 text-white">
+                Motivação dos Alunos
+              </h4>
+
+              <div class="flex items-center justify-center space-x-6">
+                <div
+                  class="donut-chart-modern"
+                  style="
+                    background: conic-gradient(
+                      #facc15 0% 40%,
+                      #a78bfa 40% 70%,
+                      #38bdf8 70% 90%,
+                      #f472b6 90% 100%
+                    );
+                  "
+                >
+                  <div class="donut-chart-hole">
+                    <span class="text-xl font-bold text-yellow-300">100%</span>
+                    <span class="text-xs text-slate-400 leading-none"
+                      >Total</span
+                    >
+                  </div>
+                </div>
+
+                <div
+                  class="text-xs space-y-2 text-left min-w-[120px] font-medium"
+                >
+                  <p class="flex items-center text-yellow-300">
+                    <span
+                      class="w-3 h-3 bg-yellow-400 rounded-full mr-2"
+                    ></span>
+                    Carreira (<span class="font-bold ml-1">40%</span>)
+                  </p>
+                  <p class="flex items-center text-purple-300">
+                    <span
+                      class="w-3 h-3 bg-purple-400 rounded-full mr-2"
+                    ></span>
+                    Viagem (<span class="font-bold ml-1">30%</span>)
+                  </p>
+                  <p class="flex items-center text-cyan-300">
+                    <span class="w-3 h-3 bg-cyan-400 rounded-full mr-2"></span>
+                    Fluência (<span class="font-bold ml-1">20%</span>)
+                  </p>
+                  <p class="flex items-center text-pink-300">
+                    <span class="w-3 h-3 bg-pink-400 rounded-full mr-2"></span>
+                    Outros (<span class="font-bold ml-1">10%</span>)
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="p-4 rounded-lg bg-slate-700/50 border border-slate-600 shadow-md"
+            >
+              <h4 class="text-center text-base font-semibold mb-4 text-white">
+                Países / Idiomas
+              </h4>
+
+              <div class="flex items-center justify-center space-x-6">
+                <div
+                  class="donut-chart-modern"
+                  style="
+                    background: conic-gradient(
+                      #34d399 0% 45%,
+                      #f472b6 45% 70%,
+                      #6366f1 70% 85%,
+                      #facc15 85% 100%
+                    );
+                  "
+                >
+                  <div class="donut-chart-hole">
+                    <span class="text-xl font-bold text-green-300">100%</span>
+                    <span class="text-xs text-slate-400 leading-none"
+                      >Total</span
+                    >
+                  </div>
+                </div>
+
+                <div
+                  class="text-xs space-y-2 text-left min-w-[120px] font-medium"
+                >
+                  <p class="flex items-center text-green-300">
+                    <span class="w-3 h-3 bg-green-400 rounded-full mr-2"></span>
+                    Brasil (<span class="font-bold ml-1">45%</span>)
+                  </p>
+                  <p class="flex items-center text-pink-300">
+                    <span class="w-3 h-3 bg-pink-400 rounded-full mr-2"></span>
+                    EUA (<span class="font-bold ml-1">25%</span>)
+                  </p>
+                  <p class="flex items-center text-indigo-300">
+                    <span
+                      class="w-3 h-3 bg-indigo-500 rounded-full mr-2"
+                    ></span>
+                    Canadá (<span class="font-bold ml-1">15%</span>)
+                  </p>
+                  <p class="flex items-center text-yellow-300">
+                    <span
+                      class="w-3 h-3 bg-yellow-400 rounded-full mr-2"
+                    ></span>
+                    Outros (<span class="font-bold ml-1">15%</span>)
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="mt-4 p-4 rounded-lg bg-slate-700/70 border border-slate-600 shadow-lg"
+          >
+            <h4 class="font-bold text-lg text-white mb-2 flex items-center">
+              <i data-lucide="clock-3" class="w-5 h-5 mr-2 text-orange-400"></i>
+              Última Aula Registrada
+            </h4>
+            <div class="text-sm space-y-1">
+              <p class="text-slate-300">
+                <span class="font-semibold text-indigo-300">Aluno:</span> Ana
+                Silva (ID: 1001)
+              </p>
+              <p class="text-slate-300">
+                <span class="font-semibold text-indigo-300">Data/Hora:</span>
+                06/11/2025 às 15:00
+              </p>
+              <div
+                class="mt-2 p-2 bg-slate-800 rounded-md border border-slate-600"
+              >
+                <p class="text-xs font-semibold text-slate-400">
+                  Anotação da Aula:
+                </p>
+                <p class="text-sm text-white">
+                  Introdução à estrutura de apresentação em inglês. Foco na
+                  pronúncia do 'th'.
+                </p>
+              </div>
+              <a
+                href="#"
+                class="text-indigo-400 hover:text-indigo-300 text-xs font-medium mt-2 block"
+                >Ver histórico completo do aluno →</a
+              >
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="coluna-direita"
+          class="w-full md:w-1/5 bg-slate-800 p-4 rounded-lg border border-slate-700 min-h-[500px] text-white"
+        >
+          <h3
+            class="text-lg font-bold text-orange-400 border-b border-orange-600 pb-2 mb-4 flex items-center"
+          >
+            <i data-lucide="list-ordered" class="w-5 h-5 mr-2"></i> Gestão de
+            Engajamento
+          </h3>
+          <div id="top10alunos">
+            *** COLAR ALUNOS AQUI (DIREITA) ***
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        lucide.createIcons();
+      });
+      const DEFAULT_DOLLAR_RATE = 5.0;
+      const PLATFORM_FEE_RATE = 0.015;
+      const AUTO_UPDATE_MS = 30 * 60 * 1000;
+      const API_PRIMARY =
+        "https://api.exchangerate.host/latest?base=USD&symbols=BRL";
+      const API_FALLBACK = "https://api.frankfurter.app/latest?from=USD&to=BRL";
+
+      let currentDollarRate = DEFAULT_DOLLAR_RATE;
+      const cotacaoElement = document.getElementById("cotacao-dolar");
+      const descontoUsdEl = document.getElementById("desconto-usd");
+      const brutoUsdEl = document.getElementById("total-bruto-usd");
+      const liquidoBrlEl = document.getElementById("total-liquido-brl");
+      const btnRefresh = document.getElementById("btn-refresh");
+      const iconRefresh = document.getElementById("icon-refresh");
+
+      function formatBRL(value) {
+        return value.toLocaleString("pt-BR", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+      }
+      function formatUSD(value) {
+        return value.toFixed(2).replace(".", ",");
+      }
+
+      function calculateMetrics(totalBrutoAntesTaxa = 10.0) {
+        const descontoUSD = totalBrutoAntesTaxa * PLATFORM_FEE_RATE;
+        const totalLiquidoUSD = totalBrutoAntesTaxa - descontoUSD;
+        const totalLiquidoBRL = totalLiquidoUSD * currentDollarRate;
+
+        descontoUsdEl.textContent = `US$ ${formatUSD(descontoUSD)}`;
+        brutoUsdEl.textContent = `US$ ${formatUSD(totalLiquidoUSD)}`;
+        liquidoBrlEl.textContent = `R$ ${formatBRL(totalLiquidoBRL)}`;
+      }
+
+      async function fetchJson(url) {
+        const resp = await fetch(url, { cache: "no-store" });
+        if (!resp.ok) throw new Error("Erro HTTP: " + resp.status);
+        return resp.json();
+      }
+
+      async function getDollarRate() {
+        try {
+          const data = await fetchJson(API_PRIMARY);
+          if (data?.rates?.BRL) return data.rates.BRL;
+          throw new Error("Formato inesperado (primária)");
+        } catch {
+          const data2 = await fetchJson(API_FALLBACK);
+          if (data2?.rates?.BRL) return data2.rates.BRL;
+          throw new Error("Formato inesperado (fallback)");
+        }
+      }
+
+      async function updateDollarRate(showSpinner = false) {
+        if (showSpinner) iconRefresh.classList.add("spinning");
+        try {
+          const rate = await getDollarRate();
+          currentDollarRate = Math.round(rate * 100) / 100;
+          cotacaoElement.textContent = `R$ ${formatBRL(currentDollarRate)}`;
+          cotacaoElement.classList.remove("text-red-400", "text-yellow-400");
+          cotacaoElement.classList.add("text-green-300");
+          calculateMetrics();
+        } catch (err) {
+          console.error("Erro ao buscar cotação:", err);
+          cotacaoElement.textContent = `R$ ${formatBRL(
+            currentDollarRate
+          )} (erro)`;
+          cotacaoElement.classList.remove("text-green-300", "text-yellow-400");
+          cotacaoElement.classList.add("text-red-400");
+        } finally {
+          if (showSpinner) iconRefresh.classList.remove("spinning");
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        lucide.createIcons();
+        calculateMetrics();
+        updateDollarRate(false);
+        setInterval(() => updateDollarRate(false), AUTO_UPDATE_MS);
+        btnRefresh.addEventListener("click", () => updateDollarRate(true));
+      });
+
+      // Função para carregar um arquivo HTML
+async function carregarHTML(url, elementoId) {
+    const response = await fetch(url); // Busca o conteúdo do arquivo
+    const html = await response.text(); // Converte a resposta para texto (HTML)
+    document.getElementById(elementoId).innerHTML = html; // Insere na div
+}
+
+// Chama a função para carregar o cabeçalho
+carregarHTML('coluna_direita.html', 'top10alunos');
+    </script>
+  </body>
+</html>

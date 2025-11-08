@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualização do Aluno - Ana Silva</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Estilos de Contraste e Tema Escuro (Otimizado) */
+        body { background-color: #0F172A; }
+        .quadrant-box { background-color: #1E293B; border: 1px solid #334155; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); }
+        
+        .section-title { font-weight: bold; font-size: 1.25rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid; }
+        .data-label { color: #94A3B8; font-size: 0.9rem; margin-top: 0.75rem; }
+        .data-value { color: #E2E8F0; font-weight: 600; font-size: 1.05rem; display: flex; align-items: center; }
+        .data-value.none { color: #EF4444; font-style: italic; font-weight: 500; font-size: 1rem; } 
+
+        /* ESTILO CRÍTICO: Permite Rolagem no Histórico */
+        #lessonHistory { 
+            overflow-y: auto; 
+            max-height: 400px; /* Limite de altura para acionar a barra de rolagem */
+        }
+        
+        /* Estilos para Histórico de Aulas */
+        .history-item { 
+            background: #0F172A; 
+            padding: 15px; 
+            margin-bottom: 10px; 
+            border-radius: 8px; 
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            border-left: 5px solid #F97316; 
+            display: flex;
+            justify-content: space-between;
+        }
+        .item-data { font-weight: bold; margin-right: 15px; color: #A7F3D0; font-size: 0.95rem; }
+        .item-value { color: #F87171; font-style: italic; }
+        .item-note { margin-top: 5px; color: #E2E8F0; font-size: 0.9rem; }
+    </style>
+</head>
+<body class="p-4 sm:p-8 font-sans">
+
+    <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center text-white mb-6 p-4 rounded-lg bg-slate-800 border-b-2 border-indigo-600 shadow-xl">
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-indigo-400 mb-4 sm:mb-0 w-full sm:w-auto" id="main-student-name">
+            Ana Silva
+        </h1>
+        <div class="flex flex-col sm:flex-row gap-4 text-sm font-medium w-full sm:w-auto">
+            <div class="flex flex-col p-2 bg-slate-700/60 rounded-lg">
+                <span class="text-slate-400">Valor da Aula (USD)</span>
+                <span class="text-xl font-bold text-yellow-400">US$ 9.00</span>
+            </div>
+            <div class="flex flex-col p-2 bg-slate-700/60 rounded-lg">
+                <span class="text-slate-400">Aulas Realizadas</span>
+                <span class="text-xl font-bold text-green-400">54</span>
+            </div>
+            <div class="flex flex-col p-2 bg-slate-700/60 rounded-lg">
+                <span class="text-slate-400">Total Gasto</span>
+                <span class="text-xl font-bold text-white">US$ 486.00</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto flex flex-wrap gap-3 mb-8">
+        <button id="register-lesson-btn" class="py-2 px-4 rounded-md bg-green-600 hover:bg-green-500 text-white font-medium transition duration-150 flex items-center shadow-md">
+             <i data-lucide="notebook-pen" class="w-4 h-4 mr-1"></i> Registrar Aula
+        </button>
+        <button onclick="openEditStudentModal()" class="py-2 px-4 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition duration-150 flex items-center shadow-md">
+             <i data-lucide="edit-3" class="w-4 h-4 mr-1"></i> Editar Cadastro
+        </button>
+         <button onclick="openDeleteStudentConfirmationModal()" class="py-2 px-4 rounded-md bg-red-600 hover:bg-red-500 text-white font-medium transition duration-150 flex items-center shadow-md">
+             <i data-lucide="trash-2" class="w-4 h-4 mr-1"></i> Excluir Aluno
+        </button>
+        <button class="py-2 px-4 rounded-md bg-slate-600 hover:bg-slate-500 text-white font-medium transition duration-150 flex items-center shadow-md">
+             <i data-lucide="layout-dashboard" class="w-4 h-4 mr-1"></i> Voltar ao Dashboard
+        </button>
+    </div>
+
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <div class="quadrant-box">
+            <h2 class="section-title text-indigo-400 border-indigo-500 flex items-center">
+                <i data-lucide="globe-2" class="w-5 h-5 mr-2"></i> A. Contexto Geral
+            </h2>
+            <div class="grid grid-cols-4 gap-4" id="section-a-data">
+                </div>
+        </div>
+        
+        <div class="quadrant-box">
+            <h2 class="section-title text-cyan-400 border-cyan-500 flex items-center">
+                <i data-lucide="users" class="w-5 h-5 mr-2"></i> B. Contexto Pessoal e Familiar
+            </h2>
+            <div class="grid grid-cols-2 gap-4" id="section-b-data">
+                </div>
+        </div>
+
+        <div class="quadrant-box">
+            <h2 class="section-title text-amber-400 border-amber-500 flex items-center">
+                <i data-lucide="clipboard-check" class="w-5 h-5 mr-2"></i> C. Interesses e Notas Vitais
+            </h2>
+            <div class="space-y-4" id="section-c-data">
+                </div>
+        </div>
+        
+        <div class="quadrant-box">
+            <h2 class="section-title text-orange-400 border-orange-500 flex items-center">
+                <i data-lucide="history" class="w-5 h-5 mr-2"></i> D. Histórico de Aulas
+            </h2>
+            
+            <ul id="lessonHistory" class="list-none p-0">
+                </ul>
+            
+            <button class="w-full mt-4 py-2 px-4 rounded-md bg-orange-600 hover:bg-orange-500 text-white text-sm font-medium transition duration-150 flex items-center justify-center shadow-md">
+                 Ver Histórico Completo (54 Aulas)
+            </button>
+        </div>
+        
+    </div>
+
+    <div id="lesson-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-800 rounded-lg w-full max-w-md p-6 shadow-2xl border border-slate-700">
+            <h3 id="lesson-modal-title" class="text-xl font-bold text-green-400 border-b border-slate-700 pb-3 mb-4 flex items-center"></h3>
+            <p id="lesson-modal-confirmation-text" class="text-white mb-4"></p>
+
+            <form id="lesson-form">
+                <input type="hidden" id="lesson-id-input"> 
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-1">
+                        <label for="lesson-date" class="block text-sm font-medium text-slate-400">Data e Hora da Aula</label>
+                        <input type="datetime-local" id="lesson-date" name="lesson-date" class="w-full mt-1 p-2 bg-slate-700 border border-slate-600 rounded-md text-white" required>
+                    </div>
+                    <div class="col-span-1">
+                        <label for="lesson-value" class="block text-sm font-medium text-slate-400">Valor (USD)</label>
+                        <input type="number" step="0.01" id="lesson-value" name="lesson-value" class="w-full mt-1 p-2 bg-slate-700 border border-slate-600 rounded-md text-white font-bold text-yellow-300" required>
+                    </div>
+                </div>
+                <div class="mb-6 mt-4">
+                    <label for="lesson-notes" class="block text-sm font-medium text-slate-400">Notas/Lembretes da Aula (Opcional)</label>
+                    <textarea id="lesson-notes" name="lesson-notes" rows="3" class="w-full mt-1 p-3 bg-slate-700 border border-slate-600 rounded-md text-white" 
+                              placeholder="Ex: Terminamos falando sobre filmes."></textarea>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeLessonModal()" class="py-2 px-4 rounded-md bg-slate-600 hover:bg-slate-500 text-white font-medium transition duration-150">
+                        Cancelar
+                    </button>
+                    <button id="lesson-form-submit-btn" type="submit" class="py-2 px-4 rounded-md bg-green-600 hover:bg-green-500 text-white font-medium transition duration-150"></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="delete-confirmation-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-800 rounded-lg w-full max-w-sm p-6 shadow-2xl border border-slate-700">
+            <h3 class="text-xl font-bold text-red-400 border-b border-slate-700 pb-3 mb-4 flex items-center">
+                <i data-lucide="alert-triangle" class="w-5 h-5 mr-2"></i> Confirmar Exclusão
+            </h3>
+            <p class="text-white mb-6">Tem certeza que deseja excluir a aula do dia <span id="delete-date-display" class="font-bold text-red-300"></span>? Esta ação é **irreversível**.</p>
+            <input type="hidden" id="lesson-id-to-delete">
+            <div class="flex justify-end gap-3">
+                <button type="button" onclick="closeDeleteConfirmationModal()" class="py-2 px-4 rounded-md bg-slate-600 hover:bg-slate-500 text-white font-medium transition duration-150">
+                    Cancelar
+                </button>
+                <button type="button" onclick="confirmDeleteLesson()" class="py-2 px-4 rounded-md bg-red-600 hover:bg-red-500 text-white font-medium transition duration-150">
+                    <i data-lucide="trash-2" class="w-4 h-4 mr-1"></i> Excluir Permanentemente
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="delete-student-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-800 rounded-lg w-full max-w-sm p-6 shadow-2xl border border-slate-700">
+            <h3 class="text-xl font-bold text-red-400 border-b border-slate-700 pb-3 mb-4 flex items-center">
+                <i data-lucide="alert-triangle" class="w-5 h-5 mr-2"></i> Confirmar Exclusão do Aluno
+            </h3>
+            <p class="text-white mb-6">Tem certeza que deseja excluir o cadastro de <span id="delete-student-name-display" class="font-bold text-red-300">Ana Silva</span>? Todos os dados e histórico serão **perdidos**.</p>
+            
+            <div class="flex justify-end gap-3">
+                <button type="button" onclick="closeDeleteStudentConfirmationModal()" class="py-2 px-4 rounded-md bg-slate-600 hover:bg-slate-500 text-white font-medium transition duration-150">
+                    Cancelar
+                </button>
+                <button type="button" onclick="confirmDeleteStudent()" class="py-2 px-4 rounded-md bg-red-600 hover:bg-red-500 text-white font-medium transition duration-150">
+                    <i data-lucide="trash-2" class="w-4 h-4 mr-1"></i> Excluir Aluno e Voltar ao Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="edit-student-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-800 rounded-lg w-full max-w-3xl p-6 shadow-2xl border border-slate-700 overflow-y-auto max-h-[90vh]">
+            <h3 class="text-2xl font-bold text-indigo-400 border-b border-slate-700 pb-3 mb-6 flex items-center">
+                <i data-lucide="edit-3" class="w-6 h-6 mr-2"></i> Editar Cadastro de Aluno
+            </h3>
+
+            <form id="edit-student-form">
+                
+                <fieldset class="mb-6 p-4 border border-indigo-600 rounded-md">
+                    <legend class="text-lg font-semibold text-indigo-400 px-2">A. Contexto Geral</legend>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-2">
+                        <div class="col-span-full">
+                            <label for="edit-name" class="block text-sm font-medium text-slate-400">1. Nome Completo</label>
+                            <input type="text" id="edit-name" name="name" class="w-full mt-1 p-2 bg-slate-700 border border-slate-600 rounded-md text-white text-xl font-bold" required>
+                        </div>
+                        <div class="col-span-2">
+                            <label for="edit-countryOrigin" class="block text-sm font-medium text-slate-400">2. País de Origem</label>
+                            <input type="text" id="edit-countryOrigin" name="countryOrigin" list="country-list" class="w-full mt-1 p-2 bg-slate-700 border border-slate-600 rounded-md text-white" required>
+                        </div>
+                        <div class="col-span-2">
+                            <label for="edit-nativeLanguage" class="block text-sm font-medium text-slate-400">3. Idioma Nativo</label>
+                            <input type="text" id="edit-nativeLanguage" name="nativeLanguage" class="w-full mt-1 p-2 bg-slate-700 border border-slate-600 rounded-md text-white" required>
+                        </div>
+                        <div class="col-span-2">
+                            <label for="edit-countryCurrent" class="block text-sm font-medium text-slate-400">4. País Atual de Residência</label>
+                            <input type="text" id="edit-countryCurrent" name="countryCurrent" list="country-list" class="w-full mt-1 p-2 bg-slate-700 border border-slate-600 rounded-md text-white" required>
+                        </div>
+                        <div class="col-span-2">
+                            <label for="edit-mostSpokenLanguage" class="block text-sm font-medium text-slate-400">5. Idioma Mais Falado (Diário)</label>
+                            <input type="text" id="edit-mostSpokenLanguage" name="mostSpokenLanguage" class="w-full mt-1 p-2 bg-slate-700 border border-slate-600 rounded-md text-white" required>
+                        </div>
+                         <div class="col-span-2">
+                            <label for="edit-profession" class="block text-sm font-medium text-slate-400">6. Profissão</label>
+                            <input type="text" id="edit-profession" name="profession" class="w-full mt-1 p-2 bg-slate-700 border border-slate-600 rounded-md text-white">
+                        </div>
+                        <div class="col-span-2">
+                            <label for="edit-segment" class="block text-sm font-medium text-slate-400">7. Segmento de Trabalho</label>
+                            <input type="text" id="edit-segment" name="segment" class="w-full mt-1 p-2 bg-slate-700 border border-slate-600 rounded-md text-white">
+                        </div>
+                         <div class="col-span-full">
+                            <label for="edit-objective" class="block text-sm font-medium text-slate-400">8. Principal Objetivo</label>
+                            <input type="text" id="edit-objective" name="objective" class="w-full mt-1 p-2 bg-slate-700 border border-slate-600 rounded-md text-white">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="mb-6 p-4 border border-cyan-600 rounded-md">
+                    <legend class="text-lg font-semibold text-cyan-400 px-2">B. Contexto Pessoal e Familiar</legend>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                         <div class="col-span-full">
+                            <label class="block text-sm font-medium text-slate-400">9. Casado(a)?</label>
+                            <div class="flex gap-4 mt-1">
+                                <label><input type="radio" name="isMarried" value="true" class="text-cyan-500 mr-1" onchange="toggleSpouseFields(true)"> Sim</label>
+                                <label><input type="radio" name="isMarried" value="false" class="text-cyan-500 mr-1" onchange="toggleSpouseFields(false)"> Não</label>
+                            </div>
+                        </div>
+                        <div id="spouse-fields" class="col-span-full grid grid-cols-2 gap-4 hidden">
+                            <div>
+                                <label for="edit-spouseName" class="block text-sm font-medium text-slate-400">10. Nome do Cônjuge</label>
+                                <input type="text" id="edit-spouseName" name="spouseName" class="w-full mt-1 p-2 bg-slate-700 border border-slate-600 rounded-md text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-400">10b. Cônjuge fala o Idioma Alvo?</label>
+                                <div class="flex gap-4 mt-1 pt-2">
+                                    <label><input type="radio" name="spouseSpeaksTargetLanguage" value="true" class="text-cyan-500 mr-1"> Sim</label>
+                                    <label><input type="radio" name="spouseSpeaksTargetLanguage" value="false" class="text-cyan-500 mr-1"> Não</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-span-full mt-2">
+                            <label for="edit-children" class="block text-sm font-medium text-slate-400">11. Filhos (Um por linha, ou deixe vazio para 'Não')</label>
+                            <textarea id="edit-children" name="children" rows="2" class="w-full mt-1 p-2 bg-slate-700 border border-slate-600 rounded-md text-white" placeholder="Ex: Laura Silva (5 anos)"></textarea>
+                        </div>
+                        <div class="col-span-full">
+                            <label for="edit-pets" class="block text-sm font-medium text-slate-400">12. Pets / Animais de Estimação (Deixe vazio para 'Não')</label>
+                            <input type="text" id="edit-pets" name="pets" class="w-full mt-1 p-2 bg-slate-700 border border-slate-600 rounded-md text-white" placeholder="Ex: Apolo (Cachorro Golden)">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="mb-6 p-4 border border-amber-600 rounded-md">
+                    <legend class="text-lg font-semibold text-amber-400 px-2">C. Interesses e Notas Vitais</legend>
+                    <div class="grid grid-cols-1 gap-4 mt-2">
+                        <div>
+                            <label for="edit-hobbies" class="block text-sm font-medium text-slate-400">13. Hobbies/Interesses Específicos (Deixe vazio para 'Nenhum')</label>
+                            <textarea id="edit-hobbies" name="hobbies" rows="2" class="w-full mt-1 p-2 bg-slate-700 border border-slate-600 rounded-md text-white"></textarea>
+                        </div>
+                        <div>
+                            <label for="edit-favoriteMovies" class="block text-sm font-medium text-slate-400">Filmes/Séries Favoritos (Deixe vazio para 'Nenhum')</label>
+                            <input type="text" id="edit-favoriteMovies" name="favoriteMovies" class="w-full mt-1 p-2 bg-slate-700 border border-slate-600 rounded-md text-white">
+                        </div>
+                        <div>
+                            <label for="edit-favoriteMusic" class="block text-sm font-medium text-slate-400">Músicas/Bandas Favoritas (Deixe vazio para 'Nenhum')</label>
+                            <input type="text" id="edit-favoriteMusic" name="favoriteMusic" class="w-full mt-1 p-2 bg-slate-700 border border-slate-600 rounded-md text-white">
+                        </div>
+                        <div class="col-span-full mt-4">
+                            <label for="edit-vitalNotes" class="block text-sm font-medium text-red-300">14. Notas Vitais de Relacionamento (Para o Tutor)</label>
+                            <textarea id="edit-vitalNotes" name="vitalNotes" rows="3" class="w-full mt-1 p-2 bg-slate-700 border border-red-700 rounded-md text-white"></textarea>
+                        </div>
+                    </div>
+                </fieldset>
+                
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-700">
+                    <button type="button" onclick="closeEditStudentModal()" class="py-2 px-4 rounded-md bg-slate-600 hover:bg-slate-500 text-white font-medium transition duration-150">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="py-2 px-4 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition duration-150">
+                        Salvar Alterações
+                    </button>
+                </div>
+            </form>
+            <datalist id="country-list">
+                 <option value="Brasil">
+                 <option value="Estados Unidos">
+                 <option value="Canadá">
+                 <option value="Portugal">
+                 <option value="Reino Unido">
+                 </datalist>
+        </div>
+    </div>
+
+
+    <script>
+        // =================================================================
+        // DADOS GLOBAIS DO ALUNO E HISTÓRICO DE AULAS
+        // =================================================================
+        let studentData = {
+            name: "Ana Silva",
+            countryOrigin: "Brasil",
+            nativeLanguage: "Português",
+            countryCurrent: "Estados Unidos",
+            mostSpokenLanguage: "Inglês",
+            profession: "Designer Gráfico",
+            segment: "Publicidade e Marketing Digital",
+            objective: "Negócios e Carreira",
+            isMarried: true,
+            spouseName: "Pedro Henrique",
+            spouseSpeaksTargetLanguage: true,
+            children: "Laura Silva (5 anos)", 
+            pets: "Apolo (Cachorro Golden)",
+            hobbies: "Fotografia, Leitura de ficção científica, Culinária japonesa",
+            favoriteMovies: null, 
+            favoriteMusic: "Bossa Nova (Tom Jobim), Rock Clássico (Led Zeppelin)",
+            vitalNotes: "Aluno muito motivado. Deve focar em vocabulário técnico de marketing e em apresentações orais."
+        };
+
+        let lessonHistoryData = [
+            // Note: Data é no formato ISO. O ID mais alto é a aula mais recente *registrada*.
+            { id: 3, date: '2025-11-06T15:00', value: 9.00, notes: "Introdução à estrutura de apresentação em inglês. Foco na pronúncia do 'th'." },
+            { id: 2, date: '2025-11-05T14:00', value: 9.00, notes: "Aula de nivelamento e revisão de tempos verbais (presente e passado simples). Conversamos sobre a infância de Ana." },
+            { id: 1, date: '2025-11-04T10:00', value: 9.00, notes: "Primeiro contato. Avaliação oral e definição de objetivos (carreira)." },
+            { id: 4, date: '2025-11-07T11:00', value: 9.00, notes: "Revisão de vocabulário de marketing. Sugeri série de TV para casa." },
+            { id: 5, date: '2025-11-08T16:00', value: 9.00, notes: "Conversa livre sobre fotografia (hobby). Corrigimos erros comuns de preposição." },
+            { id: 6, date: '2025-11-08T17:00', value: 9.00, notes: "Prática de Role-Playing para entrevista de emprego." },
+        ];
+        let nextLessonId = 7; 
+        const defaultLessonValue = 9.00; 
+
+        const COUNTRY_DATA = [{ name: "Brasil", flag: "🇧🇷"}, { name: "Estados Unidos", flag: "🇺🇸"}];
+
+        // =================================================================
+        // FUNÇÕES DE RENDERIZAÇÃO PRINCIPAL DO DASHBOARD
+        // =================================================================
+        function getFlagByCountry(countryName) {
+            const country = COUNTRY_DATA.find(c => c.name === countryName);
+            return country ? country.flag : '🌍'; 
+        }
+        
+        function renderStudentData() {
+            // Atualiza o título principal
+            document.getElementById('main-student-name').textContent = studentData.name;
+            
+            // --- SEÇÃO A ---
+            const secA = document.getElementById('section-a-data');
+            // Template HTML... (mantido da versão anterior)
+            secA.innerHTML = `
+                <div class="col-span-4">
+                    <span class="data-label">1. Nome Completo</span>
+                    <span class="data-value block text-2xl text-indigo-300">${studentData.name}</span>
+                </div>
+                <div class="col-span-2">
+                    <span class="data-label">2. País de Origem</span>
+                    <span class="data-value"><span class="mr-2 text-xl">${getFlagByCountry(studentData.countryOrigin)}</span> ${studentData.countryOrigin}</span>
+                </div>
+                <div class="col-span-2">
+                    <span class="data-label">3. Idioma Nativo</span>
+                    <span class="data-value">${studentData.nativeLanguage}</span>
+                </div>
+                
+                <div class="col-span-4 h-px bg-slate-700 my-2"></div>
+
+                <div class="col-span-2 p-2 bg-slate-800/60 rounded-md">
+                    <span class="data-label text-indigo-300">4. País Atual de Residência</span>
+                    <span class="data-value text-xl text-indigo-200"><span class="mr-2 text-xl">${getFlagByCountry(studentData.countryCurrent)}</span> ${studentData.countryCurrent}</span>
+                </div>
+                <div class="col-span-2 p-2 bg-slate-800/60 rounded-md">
+                    <span class="data-label text-indigo-300">5. Idioma Mais Falado (Diário)</span>
+                    <span class="data-value text-xl text-indigo-200">${studentData.mostSpokenLanguage}</span>
+                </div>
+
+                <div class="col-span-4 mt-2">
+                    <span class="data-label">6/7. Profissão / Segmento</span>
+                    <span class="data-value">${studentData.profession || 'Não Informado'} (${studentData.segment || 'Não Informado'})</span>
+                </div>
+
+                <div class="col-span-4 p-2 bg-slate-800/60 rounded-md">
+                    <span class="data-label">8. Principal Objetivo</span>
+                    <span class="data-value">${studentData.objective || 'Não Informado'}</span>
+                </div>
+            `;
+            
+            // --- SEÇÃO B ---
+            const secB = document.getElementById('section-b-data');
+            const isMarried = studentData.isMarried;
+            
+            let spouseDetails = '';
+            if (isMarried) {
+                const speaks = studentData.spouseSpeaksTargetLanguage ? 'Sim' : 'Não';
+                spouseDetails = `
+                    <div class="col-span-2 grid grid-cols-2 gap-4 items-center">
+                        <div class="col-span-1 p-3 bg-slate-800/60 rounded-md border-l-4 border-cyan-600">
+                            <span class="data-label text-cyan-300">Nome do Cônjuge</span>
+                            <span class="data-value text-base">${studentData.spouseName || 'Não Informado'}</span>
+                        </div>
+                        <div class="col-span-1">
+                            <span class="data-label">Fala o Idioma Alvo?</span>
+                            <span class="data-value">${speaks}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const childrenContent = studentData.children ? 
+                `<div class="p-3 bg-slate-800/60 rounded-md border-l-4 border-cyan-600"><span class="data-value">${studentData.children.replace(/\n/g, '<br>')}</span></div>` :
+                `<span class="data-value none">Não</span>`;
+                
+            const petsContent = studentData.pets ?
+                `<div class="p-3 bg-slate-800/60 rounded-md border-l-4 border-cyan-600"><span class="data-value">${studentData.pets}</span></div>` :
+                `<span class="data-value none">Não</span>`;
+
+            secB.innerHTML = `
+                <div class="col-span-2">
+                    <span class="data-label">9. Casado(a)?</span>
+                    <span class="data-value text-xl text-cyan-300">${isMarried ? 'Sim' : 'Não'}</span> 
+                </div>
+                ${spouseDetails}
+                <div class="col-span-2 mt-3">
+                     <span class="data-label">11. Filhos</span>
+                     ${childrenContent}
+                </div>
+                <div class="col-span-2">
+                    <span class="data-label">12. Pets / Animais de Estimação</span>
+                    ${petsContent}
+                </div>
+            `;
+
+            // --- SEÇÃO C ---
+            const secC = document.getElementById('section-c-data');
+            
+            const renderField = (label, data, color) => `
+                <div>
+                    <span class="data-label">${label}</span>
+                    ${data ? 
+                        `<div class="p-3 bg-slate-800/60 rounded-md border-l-4 border-${color}-600">
+                            <span class="data-value">${data}</span>
+                        </div>` :
+                        `<span class="data-value none">Nenhum</span>`
+                    }
+                </div>
+            `;
+            
+            secC.innerHTML = `
+                ${renderField('13. Hobbies/Interesses Específicos', studentData.hobbies, 'amber')}
+                ${renderField('Filmes/Séries Favoritos', studentData.favoriteMovies, 'amber')}
+                ${renderField('Músicas/Bandas Favoritas', studentData.favoriteMusic, 'amber')}
+                
+                <div class="p-4 rounded-md border border-red-700 bg-red-900/30">
+                    <span class="data-label text-red-300">14. Notas Vitais de Relacionamento (Para o Tutor)</span>
+                    <p class="text-white mt-1 text-base">${studentData.vitalNotes}</p>
+                </div>
+            `;
+
+            lucide.createIcons();
+        }
+        
+        // 2. Lógica de renderização do histórico de aulas
+        function formatLessonDate(isoDate) {
+            if (!isoDate) return '';
+            const date = new Date(isoDate);
+            return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + 
+                   date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function createLessonListItem(lesson) {
+            const li = document.createElement('li');
+            li.className = 'history-item';
+            li.id = `lesson-${lesson.id}`;
+            
+            li.innerHTML = `
+                <div class="flex-grow pr-4">
+                    <span class="item-data">${formatLessonDate(lesson.date)}</span>
+                    <span class="item-value">US$ ${lesson.value.toFixed(2).replace('.', ',')}</span>
+                    <div class="item-note">Registro: ${lesson.notes}</div>
+                </div>
+                <div class="flex gap-2 items-start pt-1">
+                    <button onclick="openEditLessonModal(${lesson.id})" class="text-indigo-400 hover:text-indigo-300 transition" title="Editar Aula">
+                        <i data-lucide="pencil" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="openDeleteConfirmationModal(${lesson.id})" class="text-red-500 hover:text-red-400 transition" title="Excluir Aula">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            `;
+            return li;
+        }
+
+        function renderLessonHistory() {
+            const ul = document.getElementById('lessonHistory');
+            ul.innerHTML = ''; 
+            
+            // CORREÇÃO APLICADA: Sort by ID descending (most recent entry is first).
+            // Isto garante que a última aula registrada vá para a primeira posição, conforme solicitado.
+            const sortedData = lessonHistoryData.slice().sort((a, b) => {
+                // Prioridade 1: ID descendente (último registro é o primeiro)
+                const idDiff = b.id - a.id; 
+                if (idDiff !== 0) {
+                    return idDiff;
+                }
+                // Prioridade 2: Data descendente (em caso de IDs iguais - não deve ocorrer - ou para histórico mais preciso)
+                return new Date(b.date) - new Date(a.date);
+            });
+
+            sortedData.forEach(lesson => {
+                const li = createLessonListItem(lesson);
+                ul.appendChild(li); 
+            });
+            
+            lucide.createIcons();
+        }
+
+
+        // =================================================================
+        // LÓGICA DO MODAL DE EDIÇÃO DE CADASTRO DO ALUNO (Mantida)
+        // =================================================================
+        function toggleSpouseFields(isMarried) {
+            const spouseFields = document.getElementById('spouse-fields');
+            if (isMarried) {
+                spouseFields.classList.remove('hidden');
+            } else {
+                spouseFields.classList.add('hidden');
+            }
+        }
+        
+        function closeEditStudentModal() {
+             document.getElementById('edit-student-modal').classList.add('hidden');
+        }
+
+        function openEditStudentModal() {
+            const modal = document.getElementById('edit-student-modal');
+            const form = document.getElementById('edit-student-form');
+            
+            // 1. Preenche todos os campos com os dados atuais
+            form.elements.name.value = studentData.name;
+            form.elements.countryOrigin.value = studentData.countryOrigin;
+            form.elements.nativeLanguage.value = studentData.nativeLanguage;
+            form.elements.countryCurrent.value = studentData.countryCurrent;
+            form.elements.mostSpokenLanguage.value = studentData.mostSpokenLanguage;
+            form.elements.profession.value = studentData.profession || '';
+            form.elements.segment.value = studentData.segment || '';
+            form.elements.objective.value = studentData.objective || '';
+            
+            // Campos Condicionais (isMarried)
+            const isMarriedInput = document.querySelector(`input[name="isMarried"][value="${studentData.isMarried}"]`);
+            if (isMarriedInput) isMarriedInput.checked = true;
+            toggleSpouseFields(studentData.isMarried);
+            
+            form.elements.spouseName.value = studentData.spouseName || '';
+            const spouseSpeaksInput = document.querySelector(`input[name="spouseSpeaksTargetLanguage"][value="${studentData.spouseSpeaksTargetLanguage}"]`);
+            if (spouseSpeaksInput) spouseSpeaksInput.checked = true;
+
+            // Outros campos
+            form.elements.children.value = studentData.children || '';
+            form.elements.pets.value = studentData.pets || '';
+            form.elements.hobbies.value = studentData.hobbies || '';
+            form.elements.favoriteMovies.value = studentData.favoriteMovies || '';
+            form.elements.favoriteMusic.value = studentData.favoriteMusic || '';
+            form.elements.vitalNotes.value = studentData.vitalNotes || '';
+
+
+            // 2. Abre o Modal
+            modal.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        document.getElementById('edit-student-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 1. Coleta dados do formulário
+            const form = e.target;
+            const newIsMarried = form.querySelector('input[name="isMarried"]:checked')?.value === 'true';
+            const newSpouseSpeaks = form.querySelector('input[name="spouseSpeaksTargetLanguage"]:checked')?.value === 'true';
+
+            // 2. Atualiza o objeto studentData
+            studentData.name = form.elements.name.value.trim();
+            studentData.countryOrigin = form.elements.countryOrigin.value.trim();
+            studentData.nativeLanguage = form.elements.nativeLanguage.value.trim();
+            studentData.countryCurrent = form.elements.countryCurrent.value.trim();
+            studentData.mostSpokenLanguage = form.elements.mostSpokenLanguage.value.trim();
+            studentData.profession = form.elements.profession.value.trim() || null;
+            studentData.segment = form.elements.segment.value.trim() || null;
+            studentData.objective = form.elements.objective.value.trim() || null;
+            
+            studentData.isMarried = newIsMarried;
+            studentData.spouseName = newIsMarried ? form.elements.spouseName.value.trim() || null : null;
+            studentData.spouseSpeaksTargetLanguage = newIsMarried ? newSpouseSpeaks : null;
+            
+            studentData.children = form.elements.children.value.trim() || null;
+            studentData.pets = form.elements.pets.value.trim() || null;
+            studentData.hobbies = form.elements.hobbies.value.trim() || null;
+            studentData.favoriteMovies = form.elements.favoriteMovies.value.trim() || null;
+            studentData.favoriteMusic = form.elements.favoriteMusic.value.trim() || null;
+            studentData.vitalNotes = form.elements.vitalNotes.value.trim() || null;
+            
+            // 3. Fecha o modal
+            closeEditStudentModal();
+            
+            // 4. Renderiza o dashboard com os novos dados
+            renderStudentData();
+        });
+
+
+        // =================================================================
+        // LÓGICA DO MODAL DE EXCLUSÃO DE ALUNO (NOVO)
+        // =================================================================
+
+        function closeDeleteStudentConfirmationModal() {
+            document.getElementById('delete-student-modal').classList.add('hidden');
+        }
+
+        function openDeleteStudentConfirmationModal() {
+            const modal = document.getElementById('delete-student-modal');
+            document.getElementById('delete-student-name-display').textContent = studentData.name;
+            modal.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function confirmDeleteStudent() {
+            // Ação: Simula a exclusão do cadastro e o retorno ao dashboard principal
+            
+            // Oculta o conteúdo atual e mostra a mensagem de sucesso/retorno ao dashboard
+            document.body.innerHTML = `
+                <div class="p-8 font-sans h-screen flex flex-col items-center justify-center text-white bg-slate-900">
+                    <i data-lucide="check-circle" class="w-16 h-16 text-green-500 mb-4"></i>
+                    <h1 class="text-3xl font-bold mb-2">Aluno Excluído com Sucesso</h1>
+                    <p class="text-slate-400 mb-6">O cadastro de ${studentData.name} foi permanentemente removido.</p>
+                    <a href="#" onclick="window.location.reload(); return false;" class="py-2 px-4 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition duration-150 flex items-center shadow-md">
+                         <i data-lucide="layout-dashboard" class="w-4 h-4 mr-1"></i> Voltar ao Dashboard Principal
+                    </a>
+                </div>
+            `;
+            closeDeleteStudentConfirmationModal();
+            lucide.createIcons();
+            // Observação: Na aplicação real, aqui haveria um redirecionamento para a lista de alunos.
+        }
+
+
+        // =================================================================
+        // LÓGICA DO MODAL DE AULA E EXCLUSÃO (Mantida)
+        // =================================================================
+        function closeLessonModal() { document.getElementById('lesson-modal').classList.add('hidden'); }
+        function openRegisterLessonModal() {
+            const modal = document.getElementById('lesson-modal');
+            const now = new Date();
+            const localISOTime = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+            document.getElementById('lesson-modal-title').innerHTML = '<i data-lucide="notebook-pen" class="w-5 h-5 mr-2"></i> Registrar Nova Aula';
+            document.getElementById('lesson-modal-title').classList.replace('text-indigo-400', 'text-green-400');
+            document.getElementById('lesson-modal-confirmation-text').textContent = 'Você está prestes a registrar uma nova aula para Ana Silva. Confirma a ação?';
+            document.getElementById('lesson-form-submit-btn').textContent = 'Registrar e Salvar';
+            document.getElementById('lesson-id-input').value = '';
+            document.getElementById('lesson-date').value = localISOTime;
+            document.getElementById('lesson-value').value = defaultLessonValue.toFixed(2);
+            document.getElementById('lesson-notes').value = '';
+            modal.classList.remove('hidden');
+            lucide.createIcons();
+        }
+        function openEditLessonModal(lessonId) {
+            const modal = document.getElementById('lesson-modal');
+            const lesson = lessonHistoryData.find(l => l.id === lessonId);
+            if (!lesson) return;
+            document.getElementById('lesson-modal-title').innerHTML = `<i data-lucide="pencil" class="w-5 h-5 mr-2"></i> Editar Aula de ${formatLessonDate(lesson.date)}`;
+            document.getElementById('lesson-modal-title').classList.replace('text-green-400', 'text-indigo-400');
+            document.getElementById('lesson-modal-confirmation-text').textContent = 'Você está editando os detalhes desta aula. As alterações não mudarão a ordem no histórico.';
+            document.getElementById('lesson-form-submit-btn').textContent = 'Salvar Edição';
+            document.getElementById('lesson-id-input').value = lesson.id; 
+            document.getElementById('lesson-date').value = lesson.date;
+            document.getElementById('lesson-value').value = lesson.value.toFixed(2);
+            document.getElementById('lesson-notes').value = lesson.notes;
+            modal.classList.remove('hidden');
+            lucide.createIcons();
+        }
+        document.getElementById('lesson-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('lesson-id-input').value;
+            const date = document.getElementById('lesson-date').value;
+            const value = parseFloat(document.getElementById('lesson-value').value);
+            const notes = document.getElementById('lesson-notes').value;
+            if (id) {
+                const index = lessonHistoryData.findIndex(l => l.id === parseInt(id));
+                if (index !== -1) { 
+                    lessonHistoryData[index] = { id: parseInt(id), date, value, notes }; 
+                    // Se for edição, mantém o ID original
+                }
+            } else {
+                // Se for novo registro, incrementa o ID para ser o mais alto (e ir para o topo)
+                const newLesson = { id: nextLessonId++, date, value, notes };
+                lessonHistoryData.push(newLesson);
+            }
+            closeLessonModal();
+            renderLessonHistory(); 
+        });
+
+        function closeDeleteConfirmationModal() { document.getElementById('delete-confirmation-modal').classList.add('hidden'); }
+        function openDeleteConfirmationModal(lessonId) {
+            const lesson = lessonHistoryData.find(l => l.id === lessonId);
+            if (!lesson) return;
+            document.getElementById('lesson-id-to-delete').value = lessonId;
+            document.getElementById('delete-date-display').textContent = formatLessonDate(lesson.date);
+            document.getElementById('delete-confirmation-modal').classList.remove('hidden');
+        }
+        function confirmDeleteLesson() {
+            const idToDelete = parseInt(document.getElementById('lesson-id-to-delete').value);
+            lessonHistoryData = lessonHistoryData.filter(l => l.id !== idToDelete);
+            closeDeleteConfirmationModal();
+            renderLessonHistory();
+        }
+
+
+        // =================================================================
+        // INICIALIZAÇÃO
+        // =================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Renderiza os dados do aluno (A, B, C)
+            renderStudentData();
+            
+            // 2. Renderiza o histórico de aulas (D)
+            renderLessonHistory(); 
+            
+            // 3. Liga o botão de Registro de Aula ao Modal
+            document.getElementById('register-lesson-btn').addEventListener('click', openRegisterLessonModal);
+        });
+    </script>
+</body>
+</html>

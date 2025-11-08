@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>iTalki Tutor - Gerenciamento de Alunos e Finanças</title>
+    <meta name="description" content="Dashboard de gerenciamento e controle financeiro para iTalki Tutors.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        .font-sans { font-family: 'Inter', sans-serif; }
+        .italki-red { color: #ff545a; }
+        .italki-red-bg { background-color: #ff545a; }
+        .italki-red-hover:hover { background-color: #d13d42; }
+        .primary-color { color: #818CF8; }
+        .primary-bg { background-color: #4F46E5; }
+        .primary-hover-bg:hover { background-color: #4338CA; }
+        .panel-bg { background-color: #1F2937; }
+        body { background-color: #0F172A; }
+        .custom-scroll::-webkit-scrollbar { width: 8px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #0F172A; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #4B5563; }
+        html, body { height:100%; margin:0; padding:0; }
+        body { display:flex; flex-direction:column; }
+        main { flex-grow:1; }
+        .form-input-style { width:100%; margin-top:5px; padding:10px; border-radius:0.5rem; background-color:#374151; border:1px solid #4B5563; color:#E5E7EB; resize:vertical; transition:border-color .2s, box-shadow .2s; }
+        .form-input-style:focus { outline:none; border-color:#4F46E5; box-shadow:0 0 0 1px #4F46E5; }
+        .student-item.selected { border-color:#4F46E5 !important; background-color:#1F2937 !important; }
+        .login-container { background-color:#0F172A; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
+        .login-card { background-color:#1F2937; border-radius:12px; padding:40px; width:100%; max-width:400px; box-shadow:0 10px 25px rgba(0,0,0,.5); border:1px solid #374151; }
+        .google-login-btn { background-color:#ffffff; color:#333333; border:1px solid #dadce0; border-radius:4px; padding:10px 16px; font-size:14px; font-weight:500; display:flex; align-items:center; justify-content:center; width:100%; cursor:pointer; transition:background-color .2s; }
+        .google-login-btn:hover { background-color:#f8f9fa; }
+        .google-logo { width:18px; height:18px; margin-right:10px; }
+        .dynamic-field { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        .number-input-container { display: flex; align-items: center; }
+        .number-input-btn { background-color: #4B5563; border: none; color: white; width: 30px; height: 30px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .number-input-btn:hover { background-color: #6B7280; }
+        .number-input { width: 50px; text-align: center; margin: 0 5px; }
+        .border-italki-red { border-color: #ff545a; }
+    </style>
+</head>
+<body class="font-sans text-gray-100 h-screen overflow-hidden flex flex-col">
+
+    <div id="login-screen" class="login-container">
+        <div class="login-card">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl md:text-4xl font-extrabold italki-red tracking-tight mb-2" style="font-family: 'Arial Black', Gadget, sans-serif;">iTalki Tutor Dashboard</h1>
+                <p class="text-gray-400">Faça login para acessar sua conta</p>
+            </div>
+
+            <div class="relative flex items-center py-4">
+                <div class="flex-grow border-t border-gray-700"></div>
+                <span class="flex-shrink mx-4 text-gray-500 text-sm">Entre com</span>
+                <div class="flex-grow border-t border-gray-700"></div>
+            </div>
+
+            <button type="button" id="google-login-btn" class="google-login-btn">
+                <svg class="google-logo" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Entrar com Google (Modo Local)
+            </button>
+        </div>
+    </div>
+
+    <div id="main-content" class="hidden flex flex-col h-full">
+
+    <header class="bg-gray-800 shadow-lg border-b border-gray-700 py-3 px-6 flex flex-col xl:flex-row justify-between items-center z-10 space-y-3 xl:space-y-0">
+        <div class="flex items-center space-x-6 flex-shrink-0">
+             <h1 class="text-3xl md:text-5xl font-extrabold italki-red tracking-tight" style="font-family: 'Arial Black', Gadget, sans-serif;">iTalki Tutor Dashboard</h1>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <div id="user-info" class="flex items-center space-x-3 bg-gray-700/50 p-2 rounded-lg border border-gray-600">
+                <div class="text-gray-300 text-sm flex items-center space-x-2">
+                    <i data-lucide="user" class="w-4 h-4 text-indigo-400"></i>
+                    <span id="logged-user-email">Teste Local (sem Login)</span>
+                </div>
+                <button id="logout-btn" class="text-gray-400 hover:text-white transition duration-200 p-1 rounded-full bg-gray-700/50">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <div id="header-financials" class="flex items-center space-x-4 bg-gray-700/50 p-2 rounded-lg border border-gray-600 text-xs md:text-sm flex-wrap justify-center xl:justify-end">
+                <button id="toggle-metrics-btn" title="Ocultar/Mostrar Valores" class="text-gray-400 hover:text-white transition duration-200 p-1 rounded-full bg-gray-700/50 self-end">
+                    <i id="toggle-metrics-icon" data-lucide="eye" class="w-4 h-4"></i>
+                </button>
+
+                <div class="text-center border-l border-gray-600 pl-3">
+                    <span class="text-xs text-gray-400 block font-medium">Total de Alunos</span>
+                    <span id="metric-total-students" class="text-md font-bold text-indigo-400">0</span>
+                </div>
+
+                <div class="text-center border-l border-gray-600 pl-3">
+                    <span class="text-xs text-gray-400 block font-medium">Total de Aulas</span>
+                    <span id="metric-total-classes" class="text-md font-bold text-green-400">0</span>
+                </div>
+
+                <div class="text-center border-l border-gray-600 pl-3">
+                    <span class="text-xs text-gray-400 block font-medium">Líquido Total (USD)</span>
+                    <span id="metric-net-usd" class="monetary-value text-lg font-extrabold text-teal-400">0,00</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="grid grid-cols-12 flex-grow overflow-hidden">
+
+        <div id="col-list" class="col-span-2 flex flex-col panel-bg border-r border-gray-700 overflow-y-auto custom-scroll p-4">
+
+            <div class="bg-gray-700 p-3 rounded-lg mb-3 shadow-inner grid grid-cols-2 gap-2 text-center">
+                 <div class="p-2 border border-gray-600 rounded-lg">
+                    <p class="text-xs text-gray-400 font-medium block">Total de Alunos</p>
+                    <span id="total-students-count" class="text-2xl font-bold text-indigo-400">0</span>
+                </div>
+                <div class="p-2 border border-gray-600 rounded-lg">
+                    <p class="text-xs text-gray-400 font-medium block">Total de Aulas</p>
+                    <span id="total-classes-count" class="text-2xl font-bold text-green-400">0</span>
+                </div>
+            </div>
+
+            <button id="new-student-btn" class="w-full primary-bg primary-hover-bg text-white py-2.5 px-2 rounded-lg font-semibold transition duration-200 shadow-lg flex items-center justify-center mb-4 text-xs md:text-sm">
+                <i data-lucide="user-plus" class="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2"></i> Adicionar Novo Aluno
+            </button>
+
+            <div class="relative mb-4">
+                <i data-lucide="search" class="w-4 h-4 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="student-search-input" placeholder="Buscar..." class="w-full bg-gray-700 text-gray-200 border border-gray-600 rounded-lg py-2 pl-8 pr-2 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 text-xs">
+            </div>
+
+            <h2 class="text-sm md:text-lg font-bold mb-3 text-gray-300 border-b border-gray-700 pb-1">Lista de Alunos</h2>
+            <div id="students-list-container" class="flex-grow space-y-2"></div>
+        </div>
+
+        <div id="col-main" class="col-span-8 flex flex-col bg-gray-900 overflow-y-auto custom-scroll p-6">
+            <div id="main-panel" class="flex-grow">
+                <div class="flex flex-col items-center justify-center h-full text-gray-500">
+                    <i data-lucide="layout-dashboard" class="w-16 h-16 mb-4 text-gray-600"></i>
+                    <p class="text-lg font-medium">Carregando Dashboard...</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="col-metrics" class="col-span-2 flex flex-col panel-bg border-l border-gray-700 overflow-y-auto custom-scroll p-4 space-y-6">
+
+            <div>
+                <h3 class="text-sm md:text-lg font-bold border-b border-gray-700 pb-2 mb-3 flex items-center text-yellow-400">
+                    <i data-lucide="award" class="w-4 h-4 md:w-5 md:h-5 mr-2 text-yellow-400"></i> Top Alunos
+                </h3>
+                <div id="top-10-list" class="space-y-2 text-xs"></div>
+            </div>
+
+            <div>
+                <h3 class="text-sm md:text-lg font-bold border-b border-gray-700 pb-2 mb-3 flex items-center text-orange-400">
+                    <i data-lucide="bell-ring" class="w-4 h-4 md:w-5 md:h-5 mr-2"></i> Alunos em Risco
+                </h3>
+                 <div id="inactivity-risk-list" class="space-y-2 text-xs"></div>
+            </div>
+
+            <div>
+                <h3 class="text-sm md:text-lg font-bold border-b border-gray-700 pb-2 mb-3 flex items-center text-red-500">
+                    <i data-lucide="user-x" class="w-4 h-4 md:w-5 md:h-5 mr-2"></i> Alunos Abandonados
+                </h3>
+                 <div id="inactive-students-list" class="space-y-2 text-xs"></div>
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-gray-700">
+                <h3 class="text-sm font-bold mb-3 text-gray-400">Backup de Dados</h3>
+                <div class="flex space-x-2">
+                    <button id="import-btn" class="flex-1 flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white py-2 px-3 rounded-lg font-semibold transition duration-200 text-xs">
+                        <i data-lucide="upload-cloud" class="w-4 h-4 mr-1"></i> Importar
+                    </button>
+                    <button id="export-btn" class="flex-1 flex items-center justify-center bg-green-600 hover:bg-green-500 text-white py-2 px-3 rounded-lg font-semibold transition duration-200 text-xs">
+                        <i data-lucide="download-cloud" class="w-4 h-4 mr-1"></i> Exportar
+                    </button>
+                </div>
+                <input type="file" id="import-file-input" accept="application/json" class="hidden">
+            </div>
+
+        </div>
+
+    </main>
+
+    <div id="message-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50 p-4">
+        <div class="panel-bg p-6 rounded-lg shadow-2xl max-w-sm w-full border border-gray-700">
+            <h4 id="message-title" class="text-lg font-bold mb-3"></h4>
+            <p id="message-content" class="text-gray-300 mb-4 text-sm"></p>
+            <div class="flex justify-end">
+                <button onclick="closeMessageBox()" class="primary-bg primary-hover-bg text-white py-2 px-4 rounded-md font-semibold text-sm">Ok</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50 p-4">
+        <div class="panel-bg p-6 rounded-lg shadow-2xl max-w-sm w-full border border-gray-700">
+            <h4 class="text-lg font-bold mb-3 text-red-400">Confirmar Exclusão</h4>
+            <p id="delete-message" class="text-gray-300 mb-4 text-sm">Tem certeza que deseja **EXCLUIR PERMANENTEMENTE** o cadastro deste aluno e todo o seu histórico de aulas? Esta ação é irreversível.</p>
+            <div class="flex justify-end space-x-3">
+                 <button onclick="cancelDelete()" class="bg-gray-600 hover:bg-gray-500 text-white py-2 px-4 rounded-md font-semibold text-sm">Cancelar</button>
+                 <button id="confirm-delete-button" onclick="confirmDelete()" class="italki-red-bg italki-red-hover text-white py-2 px-4 rounded-md font-semibold text-sm">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="log-class-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50 p-4">
+        <div class="panel-bg p-6 rounded-lg shadow-2xl max-w-lg w-full border border-gray-700">
+            <h4 class="text-xl font-bold mb-4 text-indigo-400 border-b border-gray-700 pb-2">Registrar Aula</h4>
+            <p class="text-gray-300 mb-4 text-sm">Você está registrando uma aula para <span id="log-student-name" class="font-bold text-white"></span>. O valor da aula é <span id="log-lesson-price" class="font-bold text-green-400"></span>.</p>
+            <form id="log-class-form">
+                <div class="mb-4">
+                    <label for="log-date" class="block text-sm text-gray-400 font-medium mb-1">Data da Aula (Padrão: Hoje)</label>
+                    <input type="date" id="log-date" name="log-date" class="form-input-style" required>
+                </div>
+                <div class="mb-6">
+                    <label for="log-notes" class="block text-sm text-gray-400 font-medium mb-1">Anotações da Aula (Caderno Digital)</label>
+                    <textarea id="log-notes" name="log-notes" rows="4" placeholder="Ex: Foco no Pretérito Imperfeito. Tópico de conversação: Viagens. Próxima aula: Revisão." class="form-input-style"></textarea>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeLogClassModal()" class="bg-gray-600 hover:bg-gray-500 text-white py-2 px-4 rounded-md font-semibold text-sm">Cancelar</button>
+                    <button type="submit" class="bg-green-600 hover:bg-green-500 text-white py-2 px-4 rounded-md font-semibold text-sm">Confirmar Registro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    </div> <script>
+        // === FIREBASE CONFIG (Mantido) ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyC3n2hMTwJaq5NXoeiNJynWpkRHIRfkdQw",
+            authDomain: "italki-tutor-dashboard.firebaseapp.com",
+            projectId: "italki-tutor-dashboard",
+            storageBucket: "italki-tutor-dashboard.firebasestorage.app",
+            messagingSenderId: "106549970567",
+            appId: "1:106549970567:web:4742bad1f64224b5fc9a22"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // --- Variáveis ---
+        let STUDENTS = [];
+        let SELECTED_STUDENT_ID = null;
+        let nextStudentId = 1;
+        const PLATFORM_FEE = 0.015;
+        const TODAY = new Date();
+        let metricsVisible = true;
+        
+        // MOCK USER: Define um usuário falso para o modo local
+        let currentUser = {
+            email: 'usuario.local@teste.com',
+            uid: 'local-storage-user' 
+        };
+
+        const MOCK_COUNTRIES = ["Brasil","Estados Unidos","Portugal","Japão","Jamaica","Espanha","Alemanha","França","Canadá","Itália","Argentina","China","Reino Unido","Austrália","Suíça"];
+        const MOCK_LANGUAGES = ["Inglês","Espanhol","Francês","Alemão","Japonês","Mandarim","Italiano","Russo","Coreano","Português","Holandês","Húngaro","Polonês","Sueco"];
+        const MOCK_CITIES = ["Rio de Janeiro, Brasil","São Paulo, Brasil","Nova York, EUA","Los Angeles, EUA","Tóquio, Japão","Lisboa, Portugal","Porto, Portugal","Buenos Aires, Argentina","Madri, Espanha","Londres, Reino Unido","Paris, França","Berlim, Alemanha","Toronto, Canadá","Roma, Itália","Pequim, China"];
+        const MOCK_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
+        
+        // Opções de Motivação (Tarefa 5 - Preset)
+        const MOTIVATION_OPTIONS = [
+            'Trabalho (Negócios/Carreira)', 'Estudos (Intercâmbio/Faculdade)', 'Lazer (Hobby/Filmes/Música)',
+            'Interesse Cultural (História/Artes)', 'Viagem (Curta ou Moradia)', 'Outro (Especifique nas anotações)'
+        ];
+
+        const LEVEL_DESCRIPTIONS = { 'A1':'Iniciante absoluto','A2':'Iniciante com base','B1':'Intermediário','B2':'Intermediário avançado','C1':'Avançado','C2':'Fluente' };
+
+        // Remoção do 'preferredName' (Tarefa 4)
+        const FIELD_MAP = {
+            fullName: { label: 'Nome completo' }, countryOfOrigin: { label: 'País de origem' },
+            birthCity: { label: 'Cidade natal' }, currentCity: { label: 'Onde mora atualmente' }, nativeLanguage: { label: 'Idioma nativo' },
+            otherLanguages: { label: 'Outros idiomas que fala' }, whatsappNumber: { label: 'WhatsApp' }, phoneNumber: { label: 'Telefone (Alternativo)' },
+            level: { label: 'Nível atual de português' }, studiedBefore: { label: 'Como começou ou onde começou a estudar português?' },
+            motivation: { label: 'Por que quer aprender português?' }, // Transformado em select/required (Tarefa 5)
+            mainGoal: { label: 'Objetivo principal com as aulas' },
+            portugueseUse: { label: 'Usa o português para trabalho, estudos ou lazer?' }, occupation: { label: 'Profissão / área de atuação' },
+            workplace: { label: 'Local de trabalho atual' }, previousJobs: { label: 'Já trabalhou em outras áreas ou países? Quais?' }
+        };
+
+        const defaultStudentData = {
+            id: null, lessonPriceUSD: 15.00, totalClasses: 0,
+            lastClassDate: TODAY.toISOString().split('T')[0],
+            registrationDate: TODAY.toISOString().split('T')[0],
+            lessonHistory: [], hasPartner: 'Não', partnerName: '',
+            hasChildren: 'Não', numChildren: 0, childrenNames: [], 
+            hasPets: 'Não', numPets: 0, petsNames: [],
+            hasHobby: 'Não', whatsappNumber: '', phoneNumber: '',
+            currentStateCity: '', currentCountry: '', currentLanguage: '',
+            whyStudyingPortuguese: '', whereStartedLearning: '', whyChoseTutor: '',
+            // NOVOS CAMPOS ADICIONADOS
+            relationshipNotes: '', timezone: '', stateRegion: '', 
+            workDetails: '', studyHistory: '', hobbiesDetails: ''
+        };
+
+        // --- Helpers ---
+        function formatDate(dateString) {
+            if(!dateString) return 'N/A';
+            const [y,m,d] = dateString.split('-');
+            if(!y||!m||!d) return dateString;
+            const date = new Date(y, m-1, d);
+            if (isNaN(date)) return dateString;
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        function dateDiffInDays(date1Str, date2Str) {
+            if(!date1Str || !date2Str) return 9999;
+            const d1 = new Date(date1Str), d2 = new Date(date2Str);
+            d1.setUTCHours(0,0,0,0); d2.setUTCHours(0,0,0,0);
+            if(isNaN(d1)||isNaN(d2)) return 9999;
+            const diff = d2.getTime() - d1.getTime();
+            return Math.floor(diff / (1000*60*60*24));
+        }
+
+        function getInactivityStatus(lastClassDate) {
+            const todayStr = TODAY.toISOString().split('T')[0];
+            const diffDays = dateDiffInDays(lastClassDate, todayStr);
+            
+            if (diffDays < 30) return 'Active';
+            if (diffDays === 30) return 'Yellow'; // 30 dias: Risco
+            if (diffDays >= 31 && diffDays <= 60) return 'Red'; // 31 a 60 dias: Alto Risco
+            if (diffDays > 60) return 'Abandoned'; // 61+ dias: Abandonado
+            
+            return 'Active';
+        }
+
+        function formatCurrency(amount, currency) {
+            // Simplificado para apenas USD
+            const locale = 'en-US';
+            // Garante que 0 seja formatado corretamente
+            const value = parseFloat(amount) || 0;
+            return new Intl.NumberFormat(locale, { style:'currency', currency: 'USD', minimumFractionDigits:2 }).format(value);
+        }
+        
+        function cleanWhatsapp(number) {
+            if (!number) return '';
+            // Remove tudo que não for dígito. Assumimos que o código de país está incluído se for usado o wa.me
+            return number.replace(/\D/g, '');
+        }
+        
+        // Adiciona função para extrair o país do CurrentCity
+        function getCountryFromCity(cityString) {
+            if (!cityString) return 'Não Informado';
+            const parts = cityString.split(',').map(p => p.trim());
+            return parts.length > 1 ? parts[parts.length - 1] : cityString;
+        }
+
+        // NOVA FUNÇÃO: Controle de campos condicionais
+        function toggleConditionalFields(groupName, isVisible) {
+            const containerId = `${groupName}-details-container`;
+            const container = document.getElementById(containerId);
+            if (container) {
+                if (isVisible) {
+                    container.classList.remove('hidden');
+                    const input = container.querySelector('input, textarea');
+                    if(input) input.required = true;
+                } else {
+                    container.classList.add('hidden');
+                    const input = container.querySelector('input, textarea');
+                    if(input) {
+                        input.required = false;
+                        input.value = '';
+                    }
+                }
+            }
+        }
+
+        function calculateFinancials() {
+            const totalEarnedUSD = STUDENTS.reduce((s, st) => s + ((st.totalClasses||0) * (st.lessonPriceUSD||0)), 0);
+            const platformFeeUSD = totalEarnedUSD * PLATFORM_FEE;
+            const netUSD = totalEarnedUSD - platformFeeUSD;
+            const totalClasses = STUDENTS.reduce((s, st) => s + (st.totalClasses||0), 0);
+            
+            return { totalEarnedUSD, platformFeeUSD, netUSD, totalClasses };
+        }
+
+        // === AUTENTICAÇÃO E INICIALIZAÇÃO (Mantido) ===
+        function handleGoogleLogin() {
+            initUserDashboard();
+        }
+
+        function handleLogout() {
+            STUDENTS = [];
+            SELECTED_STUDENT_ID = null;
+            localStorage.removeItem('italkiDashboardData'); // Limpa dados locais ao "logout"
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('main-content').classList.add('hidden');
+            showMessageBox("Desconectado", "Você saiu da sua conta (e os dados locais foram apagados para simular um novo login).", false);
+        }
+
+        async function initUserDashboard() {
+            document.getElementById('logged-user-email').textContent = 'Teste Local (sem Login)';
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+
+            createDatalist('country-list', MOCK_COUNTRIES);
+            createDatalist('language-list', MOCK_LANGUAGES);
+            createDatalist('city-list', MOCK_CITIES);
+
+            document.getElementById('student-search-input').onkeyup = renderStudentsList;
+            document.getElementById('new-student-btn').onclick = handleNewStudent;
+            document.getElementById('export-btn').onclick = exportData;
+            document.getElementById('import-btn').onclick = importData;
+            document.getElementById('import-file-input').onchange = handleFileImport;
+            document.getElementById('toggle-metrics-btn').onclick = () => toggleMetricsVisibility();
+
+            await loadStudents(); // GARANTIDO QUE CARREGUE/CRIE OS 25 ALUNOS
+            SELECTED_STUDENT_ID = null;
+            renderAll();
+            renderMainPanel();
+        }
+
+        // === PERSISTÊNCIA (Mantido) ===
+        async function loadStudents() {
+            const stored = localStorage.getItem('italkiDashboardData');
+            if (stored) {
+                try {
+                    const data = JSON.parse(stored);
+                    STUDENTS = Array.isArray(data.students) ? data.students : [];
+                    nextStudentId = data.nextStudentId || nextStudentId;
+                    if (STUDENTS.length > 0) return STUDENTS;
+                } catch (err) {
+                    console.error("Erro ao ler localStorage:", err);
+                }
+            }
+            // se não há dados locais ou o carregamento falhou, criar 25 alunos de demonstração
+            return seedStudents();
+        }
+
+        async function saveStudents() {
+            const dataToSave = { students: STUDENTS, nextStudentId, updatedAt: new Date().toISOString() };
+            try {
+                localStorage.setItem('italkiDashboardData', JSON.stringify(dataToSave));
+            } catch (err) {
+                console.error("Erro ao salvar localStorage:", err);
+                showMessageBox("Erro", "Não foi possível salvar os dados no navegador.", true);
+            }
+        }
+
+        function seedStudents() {
+            nextStudentId = 1;
+            const dateMinusDays = d => {
+                const dt = new Date(TODAY);
+                dt.setDate(dt.getDate() - d);
+                return dt.toISOString().split('T')[0];
+            };
+            
+            const motivationOptions = MOTIVATION_OPTIONS;
+
+            const studentsData = [
+                Object.assign({}, defaultStudentData, {
+                    id: `s${nextStudentId++}`, lessonPriceUSD:20.00, totalClasses:150, // Top 1
+                    lastClassDate: dateMinusDays(1), registrationDate: dateMinusDays(100),
+                    fullName:'Maria Silva Fake', countryOfOrigin:'Brasil', currentCity:'Rio de Janeiro, Brasil', level:'C2',
+                    motivation:'Trabalho (Negócios/Carreira)',
+                    relationshipNotes: 'Gosta de conversar sobre viagens e cultura brasileira. Tem dois filhos pequenos.',
+                    timezone: 'GMT-3', stateRegion: 'Rio de Janeiro'
+                }),
+                Object.assign({}, defaultStudentData, {
+                    id: `s${nextStudentId++}`, lessonPriceUSD:8.00, totalClasses:120, // Top 2
+                    lastClassDate: dateMinusDays(5), registrationDate: dateMinusDays(300),
+                    fullName:'Norberto Junior Fake', countryOfOrigin:'Portugal', currentCity:'Madri, Espanha', level:'C2',
+                    motivation:'Estudos (Intercâmbio/Faculdade)',
+                    relationshipNotes: 'Muito dedicado aos estudos. Gosta de receber feedback detalhado.',
+                    timezone: 'GMT+1', stateRegion: 'Madri'
+                }),
+                Object.assign({}, defaultStudentData, {
+                    id: `s${nextStudentId++}`, lessonPriceUSD:10.00, totalClasses:25,
+                    lastClassDate: dateMinusDays(30), registrationDate: dateMinusDays(80), // 30 days inactive (Yellow/Risco)
+                    fullName:'Emily Johnson Fake', countryOfOrigin:'Estados Unidos', currentCity:'Nova York, EUA', level:'B1',
+                    motivation:'Viagem (Curta ou Moradia)',
+                    relationshipNotes: 'Viajará para o Brasil em 3 meses. Foco em conversação.',
+                    timezone: 'GMT-5', stateRegion: 'Nova York'
+                }),
+                Object.assign({}, defaultStudentData, {
+                    id: `s${nextStudentId++}`, lessonPriceUSD:12.00, totalClasses:5,
+                    lastClassDate: dateMinusDays(45), registrationDate: dateMinusDays(150), // 45 days inactive (Red/Alto Risco)
+                    fullName:'Takahiro Yamada Fake', countryOfOrigin:'Japão', currentCity:'Tóquio, Japão', level:'A2',
+                    motivation:'Lazer (Hobby/Filmes/Música)',
+                    relationshipNotes: 'Interessado em música brasileira. Timido no início.',
+                    timezone: 'GMT+9', stateRegion: 'Tóquio'
+                }),
+                Object.assign({}, defaultStudentData, {
+                    id: `s${nextStudentId++}`, lessonPriceUSD:12.00, totalClasses:5,
+                    lastClassDate: dateMinusDays(65), registrationDate: dateMinusDays(200), // 65 days inactive (Abandonado)
+                    fullName:'Carlos Rodriguez Fake', countryOfOrigin:'Argentina', currentCity:'Buenos Aires, Argentina', level:'B2',
+                    motivation:'Interesse Cultural (História/Artes)',
+                    relationshipNotes: 'Não responde mais às mensagens. Possivelmente desistiu.',
+                    timezone: 'GMT-3', stateRegion: 'Buenos Aires'
+                })
+            ];
+
+            // Adiciona mais 20 alunos genéricos
+            for (let i = 0; i < 20; i++) {
+                const daysAgoReg = Math.floor(Math.random() * 365) + 1;
+                const daysAgoLastClass = Math.floor(Math.random() * 100) + 1;
+                const classes = Math.floor(Math.random() * 50) + 1;
+                const price = Math.floor(Math.random() * 10) + 8;
+                const country = MOCK_COUNTRIES[Math.floor(Math.random() * MOCK_COUNTRIES.length)];
+                const city = MOCK_CITIES[Math.floor(Math.random() * MOCK_CITIES.length)];
+                const level = MOCK_LEVELS[Math.floor(Math.random() * MOCK_LEVELS.length)];
+                const motivation = motivationOptions[Math.floor(Math.random() * motivationOptions.length)];
+                
+                studentsData.push(Object.assign({}, defaultStudentData, {
+                    id: `s${nextStudentId++}`, lessonPriceUSD:price, totalClasses:classes,
+                    lastClassDate: dateMinusDays(daysAgoLastClass), registrationDate: dateMinusDays(daysAgoReg),
+                    fullName:`Student ${i+6} Fake`, countryOfOrigin:country, currentCity:city, level:level,
+                    motivation: motivation,
+                    relationshipNotes: i % 3 === 0 ? 'Aluno regular, sempre pontual.' : '',
+                    timezone: i % 2 === 0 ? 'GMT-3' : 'GMT+1',
+                    stateRegion: city.split(',')[0] || 'Não Informado'
+                }));
+            }
+
+            STUDENTS = studentsData;
+            saveStudents();
+            return STUDENTS;
+        }
+
+        // === RENDERIZAÇÃO (Mantido) ===
+        function renderAll() {
+            renderStudentsList();
+            renderMetrics();
+            renderTop10List();
+            renderInactivityRiskList();
+            renderInactiveStudentsList();
+        }
+
+        function renderStudentsList() {
+            const container = document.getElementById('students-list-container');
+            const searchTerm = document.getElementById('student-search-input').value.toLowerCase();
+            
+            const filteredStudents = STUDENTS.filter(s => 
+                s.fullName?.toLowerCase().includes(searchTerm) || 
+                s.countryOfOrigin?.toLowerCase().includes(searchTerm) ||
+                s.currentCity?.toLowerCase().includes(searchTerm)
+            ).sort((a,b) => (b.totalClasses||0) - (a.totalClasses||0));
+            
+            container.innerHTML = '';
+            
+            if (filteredStudents.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center text-sm py-4">Nenhum aluno encontrado</p>';
+                return;
+            }
+            
+            filteredStudents.forEach(student => {
+                const lastClassDate = student.lastClassDate;
+                const status = getInactivityStatus(lastClassDate);
+                let statusColor = 'bg-green-500';
+                let statusText = 'Ativo';
+                
+                if (status === 'Yellow') { statusColor = 'bg-yellow-500'; statusText = 'Risco'; }
+                else if (status === 'Red') { statusColor = 'bg-orange-500'; statusText = 'Alto Risco'; }
+                else if (status === 'Abandoned') { statusColor = 'bg-red-500'; statusText = 'Abandonado'; }
+                
+                const isSelected = SELECTED_STUDENT_ID === student.id;
+                const studentEl = document.createElement('div');
+                studentEl.className = `student-item p-3 rounded-lg cursor-pointer transition duration-200 border border-gray-600 hover:border-gray-500 ${isSelected ? 'selected' : ''}`;
+                studentEl.onclick = () => selectStudent(student.id);
+                
+                studentEl.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-grow">
+                            <div class="flex items-center space-x-2">
+                                <h3 class="font-semibold text-sm text-white truncate max-w-[120px]">${student.fullName || 'Sem Nome'}</h3>
+                                <button onclick="event.stopPropagation(); showStudentDetails('${student.id}')" class="text-gray-400 hover:text-primary-color transition duration-150" title="Recap Rápido">
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-1">${student.countryOfOrigin || 'N/A'}</p>
+                            <div class="flex items-center space-x-1 mt-2">
+                                <span class="text-xs font-medium ${statusColor} text-white px-2 py-0.5 rounded-full">${statusText}</span>
+                                <span class="text-xs text-gray-500">${student.totalClasses || 0} aulas</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs font-bold text-green-400">${formatCurrency(student.lessonPriceUSD || 0, 'USD')}</p>
+                            <p class="text-xs text-gray-500">${formatDate(lastClassDate)}</p>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(studentEl);
+            });
+            
+            lucide.createIcons();
+        }
+
+        function renderMetrics() {
+            const { totalEarnedUSD, platformFeeUSD, netUSD, totalClasses } = calculateFinancials();
+            const totalStudents = STUDENTS.length;
+            
+            document.getElementById('metric-total-students').textContent = totalStudents;
+            document.getElementById('metric-total-classes').textContent = totalClasses;
+            document.getElementById('metric-net-usd').textContent = formatCurrency(netUSD, 'USD');
+            
+            document.getElementById('total-students-count').textContent = totalStudents;
+            document.getElementById('total-classes-count').textContent = totalClasses;
+        }
+
+        function renderTop10List() {
+            const container = document.getElementById('top-10-list');
+            const topStudents = [...STUDENTS]
+                .sort((a,b) => (b.totalClasses||0) - (a.totalClasses||0))
+                .slice(0, 10);
+            
+            container.innerHTML = '';
+            
+            if (topStudents.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center text-sm py-2">Nenhum aluno</p>';
+                return;
+            }
+            
+            topStudents.forEach((student, index) => {
+                const studentEl = document.createElement('div');
+                studentEl.className = 'flex justify-between items-center p-2 bg-gray-800/50 rounded-md hover:bg-gray-700/50 transition duration-150';
+                studentEl.onclick = () => selectStudent(student.id);
+                
+                studentEl.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-bold ${index < 3 ? 'text-yellow-400' : 'text-gray-400'}">${index+1}</span>
+                        <span class="text-xs text-gray-300 truncate max-w-[100px]">${student.fullName || 'Sem Nome'}</span>
+                    </div>
+                    <span class="text-xs font-bold text-green-400">${student.totalClasses || 0}</span>
+                `;
+                
+                container.appendChild(studentEl);
+            });
+        }
+
+        function renderInactivityRiskList() {
+            const container = document.getElementById('inactivity-risk-list');
+            const riskStudents = STUDENTS.filter(s => {
+                const status = getInactivityStatus(s.lastClassDate);
+                return status === 'Yellow' || status === 'Red';
+            }).sort((a,b) => dateDiffInDays(a.lastClassDate, TODAY.toISOString().split('T')[0]) - 
+                            dateDiffInDays(b.lastClassDate, TODAY.toISOString().split('T')[0]));
+            
+            container.innerHTML = '';
+            
+            if (riskStudents.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center text-sm py-2">Nenhum aluno em risco</p>';
+                return;
+            }
+            
+            riskStudents.forEach(student => {
+                const daysInactive = dateDiffInDays(student.lastClassDate, TODAY.toISOString().split('T')[0]);
+                const status = getInactivityStatus(student.lastClassDate);
+                let statusColor = 'text-yellow-400';
+                let statusText = `${daysInactive} dias`;
+                
+                if (status === 'Red') { statusColor = 'text-orange-400'; }
+                
+                const studentEl = document.createElement('div');
+                studentEl.className = 'flex justify-between items-center p-2 bg-gray-800/50 rounded-md hover:bg-gray-700/50 transition duration-150';
+                studentEl.onclick = () => selectStudent(student.id);
+                
+                studentEl.innerHTML = `
+                    <span class="text-xs text-gray-300 truncate max-w-[100px]">${student.fullName || 'Sem Nome'}</span>
+                    <span class="text-xs font-bold ${statusColor}">${statusText}</span>
+                `;
+                
+                container.appendChild(studentEl);
+            });
+        }
+
+        function renderInactiveStudentsList() {
+            const container = document.getElementById('inactive-students-list');
+            const inactiveStudents = STUDENTS.filter(s => getInactivityStatus(s.lastClassDate) === 'Abandoned')
+                .sort((a,b) => dateDiffInDays(a.lastClassDate, TODAY.toISOString().split('T')[0]) - 
+                              dateDiffInDays(b.lastClassDate, TODAY.toISOString().split('T')[0]));
+            
+            container.innerHTML = '';
+            
+            if (inactiveStudents.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center text-sm py-2">Nenhum aluno abandonado</p>';
+                return;
+            }
+            
+            inactiveStudents.forEach(student => {
+                const daysInactive = dateDiffInDays(student.lastClassDate, TODAY.toISOString().split('T')[0]);
+                
+                const studentEl = document.createElement('div');
+                studentEl.className = 'flex justify-between items-center p-2 bg-gray-800/50 rounded-md hover:bg-gray-700/50 transition duration-150';
+                studentEl.onclick = () => selectStudent(student.id);
+                
+                studentEl.innerHTML = `
+                    <span class="text-xs text-gray-300 truncate max-w-[100px]">${student.fullName || 'Sem Nome'}</span>
+                    <span class="text-xs font-bold text-red-400">${daysInactive} dias</span>
+                `;
+                
+                container.appendChild(studentEl);
+            });
+        }
+
+        function renderMainPanel() {
+            const panel = document.getElementById('main-panel');
+            
+            if (!SELECTED_STUDENT_ID) {
+                panel.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full text-gray-500">
+                        <i data-lucide="users" class="w-16 h-16 mb-4 text-gray-600"></i>
+                        <p class="text-lg font-medium">Selecione um aluno para ver os detalhes</p>
+                        <p class="text-sm mt-2">ou adicione um novo aluno clicando no botão à esquerda</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+            
+            const student = STUDENTS.find(s => s.id === SELECTED_STUDENT_ID);
+            if (!student) {
+                panel.innerHTML = '<p class="text-red-400">Aluno não encontrado</p>';
+                return;
+            }
+            
+            const lastClassDate = student.lastClassDate;
+            const status = getInactivityStatus(lastClassDate);
+            let statusColor = 'bg-green-500';
+            let statusText = 'Ativo';
+            
+            if (status === 'Yellow') { statusColor = 'bg-yellow-500'; statusText = 'Risco'; }
+            else if (status === 'Red') { statusColor = 'bg-orange-500'; statusText = 'Alto Risco'; }
+            else if (status === 'Abandoned') { statusColor = 'bg-red-500'; statusText = 'Abandonado'; }
+            
+            const daysInactive = dateDiffInDays(lastClassDate, TODAY.toISOString().split('T')[0]);
+            const totalEarned = (student.totalClasses||0) * (student.lessonPriceUSD||0);
+            const platformFee = totalEarned * PLATFORM_FEE;
+            const netEarned = totalEarned - platformFee;
+            
+            panel.innerHTML = `
+                <div class="bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white">${student.fullName || 'Sem Nome'}</h2>
+                            <div class="flex items-center space-x-3 mt-2">
+                                <span class="text-sm text-gray-400">${student.countryOfOrigin || 'N/A'}</span>
+                                <span class="text-sm text-gray-400">${student.currentCity || 'N/A'}</span>
+                                <span class="${statusColor} text-white px-2 py-1 rounded-full text-xs font-medium">${statusText} ${status !== 'Active' ? `(${daysInactive} dias)` : ''}</span>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2 mt-4 md:mt-0">
+                            <button onclick="openLogClassModal('${student.id}')" class="bg-green-600 hover:bg-green-500 text-white py-2 px-4 rounded-lg font-semibold transition duration-200 flex items-center text-sm">
+                                <i data-lucide="plus-circle" class="w-4 h-4 mr-1"></i> Registrar Aula
+                            </button>
+                            <button onclick="openEditStudentModal('${student.id}')" class="bg-blue-600 hover:bg-blue-500 text-white py-2 px-4 rounded-lg font-semibold transition duration-200 flex items-center text-sm">
+                                <i data-lucide="edit" class="w-4 h-4 mr-1"></i> Editar
+                            </button>
+                            <button onclick="openDeleteStudentModal('${student.id}')" class="italki-red-bg italki-red-hover text-white py-2 px-4 rounded-lg font-semibold transition duration-200 flex items-center text-sm">
+                                <i data-lucide="trash-2" class="w-4 h-4 mr-1"></i> Excluir
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-gray-700 p-4 rounded-lg text-center">
+                            <p class="text-sm text-gray-400">Preço da Aula</p>
+                            <p class="text-xl font-bold text-green-400">${formatCurrency(student.lessonPriceUSD || 0, 'USD')}</p>
+                        </div>
+                        <div class="bg-gray-700 p-4 rounded-lg text-center">
+                            <p class="text-sm text-gray-400">Total de Aulas</p>
+                            <p class="text-xl font-bold text-indigo-400">${student.totalClasses || 0}</p>
+                        </div>
+                        <div class="bg-gray-700 p-4 rounded-lg text-center">
+                            <p class="text-sm text-gray-400">Líquido Ganho</p>
+                            <p class="text-xl font-bold text-teal-400">${formatCurrency(netEarned, 'USD')}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <p class="text-gray-400"><strong>Data de Registro:</strong> ${formatDate(student.registrationDate)}</p>
+                            <p class="text-gray-400"><strong>Última Aula:</strong> ${formatDate(lastClassDate)}</p>
+                            <p class="text-gray-400"><strong>Nível de Português:</strong> ${student.level || 'N/A'} ${student.level ? `(${LEVEL_DESCRIPTIONS[student.level] || ''})` : ''}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400"><strong>Motivação:</strong> ${student.motivation || 'N/A'}</p>
+                            <p class="text-gray-400"><strong>WhatsApp:</strong> ${student.whatsappNumber ? `<a href="https://wa.me/${cleanWhatsapp(student.whatsappNumber)}" target="_blank" class="text-green-400 hover:underline">${student.whatsappNumber}</a>` : 'N/A'}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-bold mb-4 text-indigo-400 border-b border-gray-700 pb-2">Histórico de Aulas</h3>
+                    
+                    ${student.lessonHistory && student.lessonHistory.length > 0 ? `
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-700">
+                                <thead>
+                                    <tr>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Data</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Anotações</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-700">
+                                    ${student.lessonHistory.map(lesson => `
+                                        <tr>
+                                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-300">${formatDate(lesson.date)}</td>
+                                            <td class="px-4 py-2 text-sm text-gray-300">${lesson.notes || 'Sem anotações'}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    ` : '<p class="text-gray-500 text-center py-4">Nenhuma aula registrada ainda.</p>'}
+                </div>
+            `;
+            
+            lucide.createIcons();
+        }
+
+        // === FUNÇÕES DE SELEÇÃO E MODAIS (Mantido) ===
+        function selectStudent(studentId) {
+            SELECTED_STUDENT_ID = studentId;
+            renderStudentsList();
+            renderMainPanel();
+        }
+
+        function handleNewStudent() {
+            openAddStudentModal();
+        }
+
+        function openAddStudentModal() {
+            const modal = document.getElementById('add-student-modal');
+            if (!modal) {
+                createAddStudentModal();
+                document.getElementById('add-student-modal').classList.remove('hidden');
+            } else {
+                modal.classList.remove('hidden');
+            }
+            
+            document.getElementById('add-student-form').reset();
+            document.getElementById('student-lesson-price').value = '15.00';
+            
+            // Reseta os campos condicionais
+            ['spouse', 'children', 'pets', 'hobbies'].forEach(group => {
+                toggleConditionalFields(group, false);
+                const radioNo = document.querySelector(`input[name="has-${group}"][value="Não"]`);
+                if(radioNo) radioNo.checked = true;
+            });
+            
+            lucide.createIcons();
+        }
+
+        function closeAddStudentModal() {
+            document.getElementById('add-student-modal').classList.add('hidden');
+        }
+
+        function openEditStudentModal(studentId) {
+            const student = STUDENTS.find(s => s.id === studentId);
+            if (!student) return;
+            
+            const modal = document.getElementById('add-student-modal');
+            if (!modal) {
+                createAddStudentModal();
+            }
+            
+            modal.classList.remove('hidden');
+            modal.dataset.editingStudentId = studentId;
+            
+            const form = document.getElementById('add-student-form');
+            form.reset();
+            
+            // Preenche os campos básicos
+            Object.keys(FIELD_MAP).forEach(field => {
+                const input = form.querySelector(`[name="${field}"]`);
+                if (input && student[field] !== undefined) {
+                    if (input.type === 'radio') {
+                        const radio = form.querySelector(`[name="${field}"][value="${student[field]}"]`);
+                        if (radio) radio.checked = true;
+                    } else {
+                        input.value = student[field] || '';
+                    }
+                }
+            });
+            
+            // Preenche os campos de preço e datas
+            document.getElementById('student-lesson-price').value = student.lessonPriceUSD || '15.00';
+            document.getElementById('student-registration-date').value = student.registrationDate || TODAY.toISOString().split('T')[0];
+            
+            // Preenche os campos de Rapport (NOVOS)
+            document.getElementById('student-relationship-notes').value = student.relationshipNotes || '';
+            document.getElementById('student-country').value = student.currentCountry || '';
+            document.getElementById('student-state').value = student.stateRegion || '';
+            document.getElementById('student-motivation').value = student.motivation || '';
+            document.getElementById('student-profession').value = student.occupation || '';
+            document.getElementById('student-workplace').value = student.workplace || '';
+            document.getElementById('student-work-details').value = student.workDetails || '';
+            document.getElementById('student-study-history').value = student.studyHistory || '';
+            
+            // Preenche os campos condicionais
+            const conditionalFields = [
+                { group: 'spouse', hasField: 'hasPartner', detailsField: 'partnerName' },
+                { group: 'children', hasField: 'hasChildren', detailsField: 'childrenNames' },
+                { group: 'pets', hasField: 'hasPets', detailsField: 'petsNames' },
+                { group: 'hobbies', hasField: 'hasHobby', detailsField: 'hobbiesDetails' }
+            ];
+            
+            conditionalFields.forEach(({ group, hasField, detailsField }) => {
+                const hasValue = student[hasField];
+                if (hasValue) {
+                    const radioYes = document.querySelector(`input[name="has-${group}"][value="Sim"]`);
+                    if (radioYes) {
+                        radioYes.checked = true;
+                        toggleConditionalFields(group, true);
+                        const detailsInput = document.getElementById(`${group}-details`);
+                        if (detailsInput) detailsInput.value = student[detailsField] || '';
+                    }
+                } else {
+                    const radioNo = document.querySelector(`input[name="has-${group}"][value="Não"]`);
+                    if (radioNo) radioNo.checked = true;
+                    toggleConditionalFields(group, false);
+                }
+            });
+            
+            lucide.createIcons();
+        }
+
+        function openDeleteStudentModal(studentId) {
+            const student = STUDENTS.find(s => s.id === studentId);
+            if (!student) return;
+            
+            document.getElementById('delete-message').innerHTML = `Tem certeza que deseja <strong>EXCLUIR PERMANENTEMENTE</strong> o cadastro de <strong>${student.fullName || 'este aluno'}</strong> e todo o seu histórico de aulas? Esta ação é irreversível.`;
+            document.getElementById('delete-modal').classList.remove('hidden');
+            document.getElementById('delete-modal').dataset.studentId = studentId;
+        }
+
+        function cancelDelete() {
+            document.getElementById('delete-modal').classList.add('hidden');
+        }
+
+        function confirmDelete() {
+            const studentId = document.getElementById('delete-modal').dataset.studentId;
+            if (!studentId) return;
+            
+            STUDENTS = STUDENTS.filter(s => s.id !== studentId);
+            
+            if (SELECTED_STUDENT_ID === studentId) {
+                SELECTED_STUDENT_ID = null;
+            }
+            
+            saveStudents();
+            renderAll();
+            renderMainPanel();
+            
+            document.getElementById('delete-modal').classList.add('hidden');
+            showMessageBox("Aluno Excluído", "O aluno foi removido permanentemente do sistema.", false);
+        }
+
+        function openLogClassModal(studentId) {
+            const student = STUDENTS.find(s => s.id === studentId);
+            if (!student) return;
+            
+            document.getElementById('log-student-name').textContent = student.fullName || 'Aluno sem nome';
+            document.getElementById('log-lesson-price').textContent = formatCurrency(student.lessonPriceUSD || 0, 'USD');
+            document.getElementById('log-date').value = TODAY.toISOString().split('T')[0];
+            document.getElementById('log-notes').value = '';
+            document.getElementById('log-class-modal').classList.remove('hidden');
+            document.getElementById('log-class-modal').dataset.studentId = studentId;
+        }
+
+        function closeLogClassModal() {
+            document.getElementById('log-class-modal').classList.add('hidden');
+        }
+
+        // === FUNÇÕES DE FORMULÁRIO (Mantido) ===
+        function createDatalist(id, options) {
+            let datalist = document.getElementById(id);
+            if (!datalist) {
+                datalist = document.createElement('datalist');
+                datalist.id = id;
+                document.body.appendChild(datalist);
+            }
+            datalist.innerHTML = options.map(opt => `<option value="${opt}">`).join('');
+        }
+
+        function createAddStudentModal() {
+            const modalHTML = `
+                <div id="add-student-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50 p-4 overflow-y-auto">
+                    <div class="panel-bg p-6 rounded-lg shadow-2xl max-w-4xl w-full border border-gray-700 my-8">
+                        <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
+                            <h4 class="text-xl font-bold text-indigo-400">Adicionar Novo Aluno</h4>
+                            <button onclick="closeAddStudentModal()" class="text-gray-400 hover:text-white transition duration-200">
+                                <i data-lucide="x" class="w-6 h-6"></i>
+                            </button>
+                        </div>
+                        
+                        <form id="add-student-form" onsubmit="addNewStudent(event)" class="space-y-6 max-h-[70vh] overflow-y-auto custom-scroll pr-2">
+                            <!-- BLOCO A: IDENTIFICAÇÃO E CONTATO -->
+                            <div class="bg-gray-900 p-5 rounded-lg border-l-4 border-italki-red shadow-lg">
+                                <h4 class="text-xl font-semibold mb-4 flex items-center space-x-2 text-italki-red">
+                                    <i data-lucide="user-square-2" class="w-6 h-6"></i>
+                                    <span>A. Identificação e Contato</span>
+                                </h4>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="fullName" class="block text-sm font-medium text-gray-300 mb-1">Nome Completo *</label>
+                                        <input type="text" id="fullName" name="fullName" required class="form-input-style">
+                                    </div>
+                                    <div>
+                                        <label for="countryOfOrigin" class="block text-sm font-medium text-gray-300 mb-1">País de Origem *</label>
+                                        <input type="text" id="countryOfOrigin" name="countryOfOrigin" list="country-list" required class="form-input-style">
+                                    </div>
+                                    <div>
+                                        <label for="birthCity" class="block text-sm font-medium text-gray-300 mb-1">Cidade Natal</label>
+                                        <input type="text" id="birthCity" name="birthCity" list="city-list" class="form-input-style">
+                                    </div>
+                                    <div>
+                                        <label for="currentCity" class="block text-sm font-medium text-gray-300 mb-1">Onde Mora Atualmente *</label>
+                                        <input type="text" id="currentCity" name="currentCity" list="city-list" required class="form-input-style">
+                                    </div>
+                                    <div>
+                                        <label for="nativeLanguage" class="block text-sm font-medium text-gray-300 mb-1">Idioma Nativo *</label>
+                                        <input type="text" id="nativeLanguage" name="nativeLanguage" list="language-list" required class="form-input-style">
+                                    </div>
+                                    <div>
+                                        <label for="otherLanguages" class="block text-sm font-medium text-gray-300 mb-1">Outros Idiomas que Fala</label>
+                                        <input type="text" id="otherLanguages" name="otherLanguages" class="form-input-style">
+                                    </div>
+                                    <div>
+                                        <label for="whatsappNumber" class="block text-sm font-medium text-gray-300 mb-1">WhatsApp</label>
+                                        <input type="text" id="whatsappNumber" name="whatsappNumber" class="form-input-style" placeholder="+5511999999999">
+                                    </div>
+                                    <div>
+                                        <label for="phoneNumber" class="block text-sm font-medium text-gray-300 mb-1">Telefone (Alternativo)</label>
+                                        <input type="text" id="phoneNumber" name="phoneNumber" class="form-input-style">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- BLOCO B: METAS E CARREIRA -->
+                            <div class="bg-gray-900 p-5 rounded-lg border-l-4 border-blue-500 shadow-lg">
+                                <h4 class="text-xl font-semibold mb-4 flex items-center space-x-2 text-blue-400">
+                                    <i data-lucide="target" class="w-6 h-6"></i>
+                                    <span>B. Metas e Carreira</span>
+                                </h4>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="level" class="block text-sm font-medium text-gray-300 mb-1">Nível Atual de Português *</label>
+                                        <select id="level" name="level" required class="form-input-style">
+                                            <option value="">Selecione...</option>
+                                            ${MOCK_LEVELS.map(l => `<option value="${l}">${l} - ${LEVEL_DESCRIPTIONS[l]}</option>`).join('')}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="motivation" class="block text-sm font-medium text-gray-300 mb-1">Por que quer aprender português? *</label>
+                                        <select id="motivation" name="motivation" required class="form-input-style">
+                                            <option value="">Selecione...</option>
+                                            ${MOTIVATION_OPTIONS.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                                        </select>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label for="mainGoal" class="block text-sm font-medium text-gray-300 mb-1">Objetivo Principal com as Aulas</label>
+                                        <textarea id="mainGoal" name="mainGoal" rows="2" class="form-input-style"></textarea>
+                                    </div>
+                                    <div>
+                                        <label for="occupation" class="block text-sm font-medium text-gray-300 mb-1">Profissão / Área de Atuação</label>
+                                        <input type="text" id="occupation" name="occupation" class="form-input-style">
+                                    </div>
+                                    <div>
+                                        <label for="workplace" class="block text-sm font-medium text-gray-300 mb-1">Local de Trabalho Atual</label>
+                                        <input type="text" id="workplace" name="workplace" class="form-input-style">
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label for="workDetails" class="block text-sm font-medium text-gray-300 mb-1">Detalhes do Trabalho / Carreira</label>
+                                        <textarea id="workDetails" name="workDetails" rows="2" class="form-input-style" placeholder="Ex: Trabalha em empresa de tecnologia, viaja frequentemente..."></textarea>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label for="studyHistory" class="block text-sm font-medium text-gray-300 mb-1">Histórico de Estudos (Onde estudou antes?)</label>
+                                        <textarea id="studyHistory" name="studyHistory" rows="2" class="form-input-style"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- BLOCO C: VIDA PESSOAL -->
+                            <div class="bg-gray-900 p-5 rounded-lg border-l-4 border-green-500 shadow-lg">
+                                <h4 class="text-xl font-semibold mb-4 flex items-center space-x-2 text-green-400">
+                                    <i data-lucide="heart" class="w-6 h-6"></i>
+                                    <span>C. Vida Pessoal (Rapport)</span>
+                                </h4>
+                                
+                                <div class="space-y-4">
+                                    <!-- Companheiro(a) -->
+                                    <div class="p-3 bg-gray-700 rounded-md">
+                                        <label class="block text-sm font-medium text-gray-300 mb-2">Tem Companheiro(a)?</label>
+                                        <div class="flex space-x-4">
+                                            <label class="flex items-center">
+                                                <input type="radio" name="has-spouse" value="Sim" class="form-radio text-italki-red" onchange="toggleConditionalFields('spouse', true)">
+                                                <span class="ml-2">Sim</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="radio" name="has-spouse" value="Não" class="form-radio text-italki-red" onchange="toggleConditionalFields('spouse', false)" checked>
+                                                <span class="ml-2">Não</span>
+                                            </label>
+                                        </div>
+                                        <div id="spouse-details-container" class="mt-3 hidden">
+                                            <label for="spouse-details" class="block text-sm font-medium text-gray-400">Nome do Companheiro(a)</label>
+                                            <input type="text" id="spouse-details" class="mt-1 block w-full bg-gray-600 border border-gray-500 rounded-md shadow-sm p-2 text-gray-100">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Filhos -->
+                                    <div class="p-3 bg-gray-700 rounded-md">
+                                        <label class="block text-sm font-medium text-gray-300 mb-2">Tem Filhos?</label>
+                                        <div class="flex space-x-4">
+                                            <label class="flex items-center">
+                                                <input type="radio" name="has-children" value="Sim" class="form-radio text-italki-red" onchange="toggleConditionalFields('children', true)">
+                                                <span class="ml-2">Sim</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="radio" name="has-children" value="Não" class="form-radio text-italki-red" onchange="toggleConditionalFields('children', false)" checked>
+                                                <span class="ml-2">Não</span>
+                                            </label>
+                                        </div>
+                                        <div id="children-details-container" class="mt-3 hidden">
+                                            <label for="children-details" class="block text-sm font-medium text-gray-400">Nomes e Idades (Ex: João, 5 anos; Maria, 2 anos)</label>
+                                            <input type="text" id="children-details" class="mt-1 block w-full bg-gray-600 border border-gray-500 rounded-md shadow-sm p-2 text-gray-100">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Pets -->
+                                    <div class="p-3 bg-gray-700 rounded-md">
+                                        <label class="block text-sm font-medium text-gray-300 mb-2">Tem Pets? (O "Bob")</label>
+                                        <div class="flex space-x-4">
+                                            <label class="flex items-center">
+                                                <input type="radio" name="has-pets" value="Sim" class="form-radio text-italki-red" onchange="toggleConditionalFields('pets', true)">
+                                                <span class="ml-2">Sim</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="radio" name="has-pets" value="Não" class="form-radio text-italki-red" onchange="toggleConditionalFields('pets', false)" checked>
+                                                <span class="ml-2">Não</span>
+                                            </label>
+                                        </div>
+                                        <div id="pets-details-container" class="mt-3 hidden">
+                                            <label for="pets-details" class="block text-sm font-medium text-gray-400">Nomes e Espécies (Ex: Bob, Pastor Alemão; Mia, Gata)</label>
+                                            <input type="text" id="pets-details" class="mt-1 block w-full bg-gray-600 border border-gray-500 rounded-md shadow-sm p-2 text-gray-100">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Hobbies -->
+                                    <div class="p-3 bg-gray-700 rounded-md">
+                                        <label class="block text-sm font-medium text-gray-300 mb-2">Tem Hobbies/Interesses?</label>
+                                        <div class="flex space-x-4">
+                                            <label class="flex items-center">
+                                                <input type="radio" name="has-hobbies" value="Sim" class="form-radio text-italki-red" onchange="toggleConditionalFields('hobbies', true)">
+                                                <span class="ml-2">Sim</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="radio" name="has-hobbies" value="Não" class="form-radio text-italki-red" onchange="toggleConditionalFields('hobbies', false)" checked>
+                                                <span class="ml-2">Não</span>
+                                            </label>
+                                        </div>
+                                        <div id="hobbies-details-container" class="mt-3 hidden">
+                                            <label for="hobbies-details" class="block text-sm font-medium text-gray-400">Quais? (Ex: Música, Futebol, Leitura, Viagens)</label>
+                                            <input type="text" id="hobbies-details" class="mt-1 block w-full bg-gray-600 border border-gray-500 rounded-md shadow-sm p-2 text-gray-100">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- BLOCO D: NOTAS E FUSO HORÁRIO -->
+                            <div class="bg-gray-900 p-5 rounded-lg border-l-4 border-yellow-500 shadow-lg">
+                                <h4 class="text-xl font-semibold mb-4 flex items-center space-x-2 text-yellow-400">
+                                    <i data-lucide="clock" class="w-6 h-6"></i>
+                                    <span>D. Notas e Fuso Horário</span>
+                                </h4>
+                                
+                                <div class="space-y-4">
+                                    <!-- Campo Vital -->
+                                    <div class="p-4 bg-gray-700 rounded-lg shadow-inner mb-6">
+                                        <label for="student-relationship-notes" class="block text-sm font-bold text-red-400 mb-2">
+                                            <i data-lucide="alert-triangle" class="w-4 h-4 inline mr-1"></i>
+                                            Anote aqui informações vitais para o relacionamento...
+                                        </label>
+                                        <textarea id="student-relationship-notes" rows="3" class="mt-1 block w-full bg-gray-600 border border-red-500 rounded-md shadow-sm p-3 text-gray-100 focus:ring-red-400 focus:border-red-400"></textarea>
+                                    </div>
+                                    
+                                    <!-- Localização para Fuso Horário -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="student-country" class="block text-sm font-medium text-gray-300">País de Origem</label>
+                                            <input type="text" id="student-country" class="form-input-style">
+                                        </div>
+                                        <div>
+                                            <label for="student-state" class="block text-sm font-medium text-gray-300">Estado/Região (para Fuso)</label>
+                                            <input type="text" id="student-state" class="form-input-style">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Display de Fuso Horário e Mapa (Placeholder) -->
+                                    <div class="mt-4 flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                                        <div class="flex-1 bg-gray-800 p-3 rounded-md border border-gray-600 text-center">
+                                            <p class="text-xs text-gray-400">Hora Atual do Aluno (Simulado)</p>
+                                            <p id="timezone-display" class="text-3xl font-mono text-green-400 mt-1">10:30 PM (Placeholder)</p>
+                                        </div>
+                                        <div class="flex-1 bg-gray-800 p-3 rounded-md border border-gray-600 text-center">
+                                            <p class="text-xs text-gray-400">Mapa Destacado (Simulado)</p>
+                                            <div id="map-placeholder" class="h-24 bg-gray-700 flex items-center justify-center text-sm text-gray-400">
+                                                <i data-lucide="map-pin" class="w-4 h-4 mr-1"></i> Mapa do Estado (Destacado em Vermelho)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Preço da Aula e Data de Registro -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                                        <div>
+                                            <label for="student-lesson-price" class="block text-sm font-medium text-gray-300 mb-1">Preço da Aula (USD) *</label>
+                                            <input type="number" id="student-lesson-price" name="lessonPriceUSD" min="1" max="100" step="0.01" value="15.00" required class="form-input-style">
+                                        </div>
+                                        <div>
+                                            <label for="student-registration-date" class="block text-sm font-medium text-gray-300 mb-1">Data de Registro *</label>
+                                            <input type="date" id="student-registration-date" name="registrationDate" required class="form-input-style">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-700">
+                                <button type="button" onclick="closeAddStudentModal()" class="bg-gray-600 hover:bg-gray-500 text-white py-2 px-4 rounded-md font-semibold transition duration-200 text-sm">Cancelar</button>
+                                <button type="submit" class="primary-bg primary-hover-bg text-white py-2 px-4 rounded-md font-semibold transition duration-200 text-sm">Salvar Aluno</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            lucide.createIcons();
+        }
+
+        function addNewStudent(e) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            
+            // Coleta dados básicos
+            const newStudent = Object.assign({}, defaultStudentData);
+            Object.keys(FIELD_MAP).forEach(field => {
+                const value = formData.get(field);
+                if (value !== null) newStudent[field] = value;
+            });
+            
+            // Coleta dados de preço e data
+            newStudent.lessonPriceUSD = parseFloat(formData.get('lessonPriceUSD')) || 15.00;
+            newStudent.registrationDate = formData.get('registrationDate') || TODAY.toISOString().split('T')[0];
+            
+            // Coleta de dados de localização e trabalho (NOVOS)
+            newStudent.currentCountry = document.getElementById('student-country').value;
+            newStudent.stateRegion = document.getElementById('student-state').value;
+            newStudent.motivation = document.getElementById('student-motivation').value;
+            newStudent.occupation = document.getElementById('student-profession').value;
+            newStudent.workplace = document.getElementById('student-workplace').value;
+            newStudent.workDetails = document.getElementById('student-work-details').value;
+            newStudent.studyHistory = document.getElementById('student-study-history').value;
+            
+            // Coleta de dados Condicionais (NOVOS)
+            newStudent.hasPartner = formData.get('has-spouse') || 'Não';
+            newStudent.partnerName = newStudent.hasPartner === 'Sim' ? document.getElementById('spouse-details').value : '';
+            
+            newStudent.hasChildren = formData.get('has-children') || 'Não';
+            newStudent.childrenNames = newStudent.hasChildren === 'Sim' ? document.getElementById('children-details').value : '';
+            
+            newStudent.hasPets = formData.get('has-pets') || 'Não';
+            newStudent.petsNames = newStudent.hasPets === 'Sim' ? document.getElementById('pets-details').value : '';
+            
+            newStudent.hasHobby = formData.get('has-hobbies') || 'Não';
+            newStudent.hobbiesDetails = newStudent.hasHobby === 'Sim' ? document.getElementById('hobbies-details').value : '';
+            
+            // Notas Vitais (NOVO)
+            newStudent.relationshipNotes = document.getElementById('student-relationship-notes').value;
+            
+            // Verifica se está editando
+            const editingStudentId = document.getElementById('add-student-modal').dataset.editingStudentId;
+            
+            if (editingStudentId) {
+                // Atualiza aluno existente
+                const index = STUDENTS.findIndex(s => s.id === editingStudentId);
+                if (index !== -1) {
+                    newStudent.id = editingStudentId;
+                    newStudent.totalClasses = STUDENTS[index].totalClasses;
+                    newStudent.lastClassDate = STUDENTS[index].lastClassDate;
+                    newStudent.lessonHistory = STUDENTS[index].lessonHistory;
+                    STUDENTS[index] = newStudent;
+                }
+                delete document.getElementById('add-student-modal').dataset.editingStudentId;
+            } else {
+                // Cria novo aluno
+                newStudent.id = `s${nextStudentId++}`;
+                STUDENTS.push(newStudent);
+            }
+            
+            saveStudents();
+            renderAll();
+            
+            if (!editingStudentId) {
+                SELECTED_STUDENT_ID = newStudent.id;
+                renderMainPanel();
+            }
+            
+            closeAddStudentModal();
+            showMessageBox("Sucesso", editingStudentId ? "Aluno atualizado com sucesso!" : "Novo aluno adicionado com sucesso!", false);
+        }
+
+        // NOVA FUNÇÃO: Recap Rápido (Pop-up)
+        function showStudentDetails(studentId) {
+            const student = STUDENTS.find(s => s.id === studentId);
+            if (!student) return;
+
+            let detailsHtml = `<h4 class="text-xl font-bold italki-red mb-3">${student.fullName} (Recap Rápido)</h4>`;
+            detailsHtml += `<div class="space-y-2 text-sm text-gray-300">`;
+            
+            // Motivação e Carreira
+            detailsHtml += `<p><strong>🎯 Motivação:</strong> ${student.motivation || 'Não informado'}</p>`;
+            detailsHtml += `<p><strong>💼 Profissão:</strong> ${student.occupation || 'Não informado'}</p>`;
+            if (student.workplace) {
+                detailsHtml += `<p><strong>🏢 Local de Trabalho:</strong> ${student.workplace}</p>`;
+            }
+            
+            // Localização
+            detailsHtml += `<p><strong>🌍 País:</strong> ${student.countryOfOrigin || 'Não informado'}</p>`;
+            detailsHtml += `<p><strong>📍 Cidade:</strong> ${student.currentCity || 'Não informado'}</p>`;
+            if (student.stateRegion) {
+                detailsHtml += `<p><strong>⏰ Região/Fuso:</strong> ${student.stateRegion}</p>`;
+            }
+            
+            // Vida Pessoal
+            detailsHtml += `<p class="mt-2"><strong>👨‍👩‍👧‍👦 Vida Pessoal:</strong></p>`;
+            
+            const spouseStatus = student.hasPartner === 'Sim' ? (student.partnerName || 'Sim (Nome não informado)') : 'Não';
+            detailsHtml += `<p class="ml-2"> - 💍 Companheiro(a): ${spouseStatus}</p>`;
+            
+            const childrenStatus = student.hasChildren === 'Sim' ? (student.childrenNames || 'Sim (Detalhes não informados)') : 'Não';
+            detailsHtml += `<p class="ml-2"> - 👶 Filhos: ${childrenStatus}</p>`;
+            
+            const petsStatus = student.hasPets === 'Sim' ? (student.petsNames || 'Sim (Detalhes não informados)') : 'Não';
+            detailsHtml += `<p class="ml-2"> - 🐾 Pets: ${petsStatus}</p>`;
+            
+            const hobbiesStatus = student.hasHobby === 'Sim' ? (student.hobbiesDetails || 'Sim (Detalhes não informados)') : 'Não';
+            detailsHtml += `<p class="ml-2"> - 🎨 Hobbies: ${hobbiesStatus}</p>`;
+            
+            // O Campo Vital de Anotações, destacado
+            if(student.relationshipNotes) {
+                detailsHtml += `<p class="mt-4 p-2 bg-gray-700 rounded-md border border-red-400 text-red-300"><strong>⚠️ NOTAS RELACIONAMENTO:</strong> ${student.relationshipNotes}</p>`;
+            }
+            
+            detailsHtml += `</div>`;
+
+            showMessageBox('Detalhes do Aluno', detailsHtml, false);
+        }
+
+        // === FUNÇÕES DE AULA (Mantido) ===
+        document.getElementById('log-class-form').onsubmit = function(e) {
+            e.preventDefault();
+            const form = e.target;
+            const studentId = document.getElementById('log-class-modal').dataset.studentId;
+            const student = STUDENTS.find(s => s.id === studentId);
+            
+            if (!student) {
+                closeLogClassModal();
+                return;
+            }
+            
+            const classDate = form['log-date'].value;
+            const classNotes = form['log-notes'].value;
+            
+            // Atualiza o aluno
+            student.totalClasses = (student.totalClasses || 0) + 1;
+            student.lastClassDate = classDate;
+            
+            if (!student.lessonHistory) {
+                student.lessonHistory = [];
+            }
+            
+            student.lessonHistory.unshift({
+                date: classDate,
+                notes: classNotes
+            });
+            
+            saveStudents();
+            renderAll();
+            renderMainPanel();
+            
+            closeLogClassModal();
+            showMessageBox("Aula Registrada", `Aula registrada com sucesso para ${student.fullName || 'o aluno'}.`, false);
+        };
+
+        // === FUNÇÕES DE EXPORTAÇÃO/IMPORTAÇÃO (Mantido) ===
+        function exportData() {
+            const dataToExport = {
+                students: STUDENTS,
+                nextStudentId,
+                exportedAt: new Date().toISOString(),
+                version: '1.0'
+            };
+            
+            const dataStr = JSON.stringify(dataToExport, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `italki-tutor-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            showMessageBox("Backup Exportado", "Seus dados foram exportados com sucesso.", false);
+        }
+
+        function importData() {
+            document.getElementById('import-file-input').click();
+        }
+
+        function handleFileImport(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const importedData = JSON.parse(event.target.result);
+                    
+                    if (!importedData.students || !Array.isArray(importedData.students)) {
+                        throw new Error("Formato de arquivo inválido");
+                    }
+                    
+                    if (confirm(`Isso substituirá todos os dados atuais por ${importedData.students.length} aluno(s) do arquivo. Continuar?`)) {
+                        STUDENTS = importedData.students;
+                        nextStudentId = importedData.nextStudentId || nextStudentId;
+                        SELECTED_STUDENT_ID = null;
+                        
+                        saveStudents();
+                        renderAll();
+                        renderMainPanel();
+                        
+                        showMessageBox("Dados Importados", `Sucesso! ${importedData.students.length} aluno(s) carregado(s).`, false);
+                    }
+                } catch (err) {
+                    console.error("Erro na importação:", err);
+                    showMessageBox("Erro na Importação", "O arquivo selecionado é inválido ou corrompido.", true);
+                }
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        }
+
+        // === FUNÇÕES DE UI (Mantido) ===
+        function showMessageBox(title, content, isError) {
+            document.getElementById('message-title').textContent = title;
+            document.getElementById('message-content').innerHTML = content;
+            document.getElementById('message-modal').classList.remove('hidden');
+        }
+
+        function closeMessageBox() {
+            document.getElementById('message-modal').classList.add('hidden');
+        }
+
+        function toggleMetricsVisibility() {
+            metricsVisible = !metricsVisible;
+            const metricElements = document.querySelectorAll('.monetary-value');
+            const icon = document.getElementById('toggle-metrics-icon');
+            
+            metricElements.forEach(el => {
+                if (metricsVisible) {
+                    el.textContent = el.dataset.originalValue || el.textContent;
+                } else {
+                    el.dataset.originalValue = el.textContent;
+                    el.textContent = '••••';
+                }
+            });
+            
+            // Atualiza o ícone
+            if (icon) {
+                icon.setAttribute('data-lucide', metricsVisible ? 'eye' : 'eye-off');
+                lucide.createIcons();
+            }
+        }
+
+        // === INICIALIZAÇÃO (Mantido) ===
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('google-login-btn').onclick = handleGoogleLogin;
+            document.getElementById('logout-btn').onclick = handleLogout;
+            
+            // Define a data de hoje como padrão nos campos de data
+            const todayStr = TODAY.toISOString().split('T')[0];
+            document.getElementById('student-registration-date').value = todayStr;
+            document.getElementById('log-date').value = todayStr;
+            
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>

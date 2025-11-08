@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Aluno - Formulário de Cadastro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Estilos de Contraste e Tema Escuro */
+        body { background-color: #0F172A; }
+        .form-container { background-color: #1E293B; border: 1px solid #334155; border-radius: 0.75rem; padding: 2rem; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); }
+        .input-style, .select-style {
+            background-color: #334155;
+            border: 1px solid #475569;
+            color: #E2E8F0;
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .input-style:focus, .select-style:focus {
+            outline: none;
+            border-color: #6366F1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5);
+        }
+        .text-label { color: #94A3B8; font-size: 0.9rem; font-weight: 500; margin-bottom: 0.25rem; display: block; }
+        .conditional-group { margin-top: 1rem; padding: 1rem; border: 1px dashed #475569; border-radius: 0.5rem; }
+    </style>
+</head>
+<body class="p-4 sm:p-8 font-sans">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="text-white mb-8 p-4 rounded-lg bg-slate-800 border-b-2 border-green-600 shadow-xl">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-green-400 flex items-center">
+                <i data-lucide="user-plus" class="w-8 h-8 mr-3"></i> Cadastro de Novo Aluno
+            </h1>
+            <p class="text-slate-400 mt-2">Preencha o questionário para registrar o perfil do aluno.</p>
+        </header>
+
+        <div class="form-container">
+            <form id="new-student-form">
+                
+                <fieldset class="mb-8 p-6 border-2 border-green-600 rounded-md">
+                    <legend class="text-xl font-semibold text-green-400 px-2">A. Contexto Geral</legend>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-4">
+                        
+                        <div class="col-span-full">
+                            <label for="reg-name" class="text-label">1. Nome Completo do Aluno <span class="text-red-400">*</span></label>
+                            <input type="text" id="reg-name" name="name" class="input-style text-xl font-bold" required>
+                        </div>
+
+                        <div class="col-span-2">
+                            <label for="reg-countryOrigin" class="text-label">2. País de Origem <span class="text-red-400">*</span></label>
+                            <input type="text" id="reg-countryOrigin" name="countryOrigin" list="country-list" class="input-style" placeholder="Ex: Brasil" 
+                                   onchange="updateLanguageSelect('reg-countryOrigin', 'reg-nativeLanguage')" required>
+                        </div>
+                        
+                        <div class="col-span-2">
+                            <label for="reg-nativeLanguage" class="text-label">3. Idioma Nativo (Primeira Língua) <span class="text-red-400">*</span></label>
+                            <select id="reg-nativeLanguage" name="nativeLanguage" class="select-style" required>
+                                <option value="" disabled selected>Escolha o País Primeiro</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-span-2">
+                            <label for="reg-countryCurrent" class="text-label">4. País Atual de Residência <span class="text-red-400">*</span></label>
+                            <input type="text" id="reg-countryCurrent" name="countryCurrent" list="country-list" class="input-style" placeholder="Ex: Estados Unidos" 
+                                   onchange="updateLanguageSelect('reg-countryCurrent', 'reg-mostSpokenLanguage')" required>
+                        </div>
+                        
+                        <div class="col-span-2">
+                            <label for="reg-mostSpokenLanguage" class="text-label">5. Idioma Mais Falado (Diário) <span class="text-red-400">*</span></label>
+                            <select id="reg-mostSpokenLanguage" name="mostSpokenLanguage" class="select-style" required>
+                                <option value="" disabled selected>Escolha o País Primeiro</option>
+                            </select>
+                            <p class="text-xs text-slate-500 mt-1">Idioma que ele mais usa fora da aula.</p>
+                        </div>
+
+                        <div class="col-span-2">
+                            <label for="reg-profession" class="text-label">6. Profissão</label>
+                            <input type="text" id="reg-profession" name="profession" class="input-style" placeholder="Ex: Designer Gráfico">
+                        </div>
+                        <div class="col-span-2">
+                            <label for="reg-segment" class="text-label">7. Segmento de Trabalho</label>
+                            <input type="text" id="reg-segment" name="segment" class="input-style" placeholder="Ex: Marketing Digital">
+                        </div>
+                         
+                         <div class="col-span-full">
+                            <label for="reg-objective" class="text-label text-indigo-400 font-bold">8. Principal Objetivo com o Idioma Alvo <span class="text-red-400">*</span></label>
+                            <input type="text" id="reg-objective" name="objective" list="objective-list" class="input-style" placeholder="Ex: Negócios e Carreira" required>
+                            <p class="text-xs text-slate-500 mt-1">Este dado será usado no Gráfico de Metas.</p>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="mb-8 p-6 border-2 border-cyan-600 rounded-md">
+                    <legend class="text-xl font-semibold text-cyan-400 px-2">B. Contexto Pessoal e Familiar</legend>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                        
+                         <div class="col-span-full">
+                            <label class="text-label">9. Estado Civil/Relacionamento</label>
+                            <select id="reg-maritalStatus" name="maritalStatus" class="select-style" onchange="toggleSpouseFields(this.value)">
+                                <option value="Solteiro">Solteiro(a)</option>
+                                <option value="Casado">Casado(a)</option>
+                                <option value="Noivo">Noivo(a)</option>
+                                <option value="Divorciado">Divorciado(a)</option>
+                                <option value="Viúvo">Viúvo(a)</option>
+                            </select>
+                        </div>
+
+                        <div id="spouse-fields" class="col-span-full grid grid-cols-1 md:grid-cols-2 gap-6 hidden p-4 bg-slate-700/50 rounded-md">
+                            <div>
+                                <label for="reg-spouseName" class="text-label">10. Nome do Cônjuge/Parceiro</label>
+                                <input type="text" id="reg-spouseName" name="spouseName" class="input-style" placeholder="Ex: Pedro Henrique">
+                            </div>
+                            <div>
+                                <label class="text-label">10b. Cônjuge fala o Idioma Alvo?</label>
+                                <div class="flex gap-4 mt-2">
+                                    <label class="flex items-center text-white"><input type="radio" name="spouseSpeaksTargetLanguage" value="true" class="text-cyan-500 mr-1" checked> Sim</label>
+                                    <label class="flex items-center text-white"><input type="radio" name="spouseSpeaksTargetLanguage" value="false" class="text-cyan-500 mr-1"> Não</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-span-full mt-4">
+                            <label class="text-label">11. Tem Filhos?</label>
+                            <div class="flex gap-4 mt-1">
+                                <label class="flex items-center text-white"><input type="radio" name="hasChildren" value="true" class="text-cyan-500 mr-1" onchange="toggleChildrenFields(true)"> Sim</label>
+                                <label class="flex items-center text-white"><input type="radio" name="hasChildren" value="false" class="text-cyan-500 mr-1" onchange="toggleChildrenFields(false)" checked> Não</label>
+                            </div>
+                        </div>
+
+                        <div id="children-fields" class="col-span-full hidden">
+                            <label for="reg-children" class="text-label">11b. Nomes e Idades dos Filhos (Um por linha)</label>
+                            <textarea id="reg-children" name="children" rows="3" class="input-style" placeholder="Ex: Laura Silva (5 anos)&#10;Felipe Silva (2 anos)"></textarea>
+                        </div>
+                        
+                    </div>
+                </fieldset>
+
+                <fieldset class="mb-8 p-6 border-2 border-amber-600 rounded-md">
+                    <legend class="text-xl font-semibold text-amber-400 px-2">C. Interesses e Notas Vitais</legend>
+                    <div class="grid grid-cols-1 gap-6 mt-4">
+                        
+                        <div>
+                            <label class="text-label">12. Possui Pets/Animais de Estimação?</label>
+                            <div class="flex gap-4 mt-1">
+                                <label class="flex items-center text-white"><input type="radio" name="hasPets" value="true" class="text-amber-500 mr-1" onchange="toggleFieldGroup('pets-details', true)"> Sim</label>
+                                <label class="flex items-center text-white"><input type="radio" name="hasPets" value="false" class="text-amber-500 mr-1" onchange="toggleFieldGroup('pets-details', false)" checked> Não</label>
+                            </div>
+                            <div id="pets-details" class="conditional-group hidden">
+                                <label for="reg-pets" class="text-label">Detalhes dos Pets</label>
+                                <input type="text" id="reg-pets" name="pets" class="input-style" placeholder="Ex: Apolo (Cachorro Golden)">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-label">13. Possui Hobbies/Interesses Específicos?</label>
+                            <div class="flex gap-4 mt-1">
+                                <label class="flex items-center text-white"><input type="radio" name="hasHobbies" value="true" class="text-amber-500 mr-1" onchange="toggleFieldGroup('hobbies-details', true)"> Sim</label>
+                                <label class="flex items-center text-white"><input type="radio" name="hasHobbies" value="false" class="text-amber-500 mr-1" onchange="toggleFieldGroup('hobbies-details', false)" checked> Não</label>
+                            </div>
+                            <div id="hobbies-details" class="conditional-group hidden">
+                                <label for="reg-hobbies" class="text-label">Detalhes dos Hobbies</label>
+                                <textarea id="reg-hobbies" name="hobbies" rows="2" class="input-style" placeholder="Ex: Fotografia, Culinária japonesa"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="text-label">Filmes/Séries Favoritos?</label>
+                            <div class="flex gap-4 mt-1">
+                                <label class="flex items-center text-white"><input type="radio" name="hasMovies" value="true" class="text-amber-500 mr-1" onchange="toggleFieldGroup('movies-details', true)"> Sim</label>
+                                <label class="flex items-center text-white"><input type="radio" name="hasMovies" value="false" class="text-amber-500 mr-1" onchange="toggleFieldGroup('movies-details', false)" checked> Não</label>
+                            </div>
+                             <div id="movies-details" class="conditional-group hidden">
+                                <label for="reg-favoriteMovies" class="text-label">Lista de Filmes/Séries</label>
+                                <input type="text" id="reg-favoriteMovies" name="favoriteMovies" class="input-style" placeholder="Ex: Game of Thrones, The Office">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-label">Músicas/Bandas Favoritas?</label>
+                            <div class="flex gap-4 mt-1">
+                                <label class="flex items-center text-white"><input type="radio" name="hasMusic" value="true" class="text-amber-500 mr-1" onchange="toggleFieldGroup('music-details', true)"> Sim</label>
+                                <label class="flex items-center text-white"><input type="radio" name="hasMusic" value="false" class="text-amber-500 mr-1" onchange="toggleFieldGroup('music-details', false)" checked> Não</label>
+                            </div>
+                            <div id="music-details" class="conditional-group hidden">
+                                <label for="reg-favoriteMusic" class="text-label">Lista de Músicas/Bandas</label>
+                                <input type="text" id="reg-favoriteMusic" name="favoriteMusic" class="input-style" placeholder="Ex: Bossa Nova (Tom Jobim), Rock Clássico (Led Zeppelin)">
+                            </div>
+                        </div>
+
+                        <div class="col-span-full mt-6">
+                            <label for="reg-vitalNotes" class="text-label text-red-300 font-bold">14. Notas Vitais de Relacionamento (Para o Tutor)</label>
+                            <textarea id="reg-vitalNotes" name="vitalNotes" rows="3" class="input-style border-red-700" placeholder="Ex: Aluno muito motivado. Evitar temas de política."></textarea>
+                            <p class="text-xs text-red-400 mt-1">Informações cruciais para um bom relacionamento em aula.</p>
+                        </div>
+                    </div>
+                </fieldset>
+                
+                <div class="flex justify-end gap-4 pt-4 border-t border-slate-700">
+                    <button type="button" onclick="window.location.href='dashboard.html';" class="py-2 px-6 rounded-md bg-slate-600 hover:bg-slate-500 text-white font-medium transition duration-150">
+                        Cancelar e Voltar
+                    </button>
+                    <button type="submit" class="py-2 px-6 rounded-md bg-green-600 hover:bg-green-500 text-white font-bold transition duration-150 flex items-center">
+                        <i data-lucide="save" class="w-5 h-5 mr-2"></i> Salvar Novo Aluno
+                    </button>
+                </div>
+            </form>
+            
+            <datalist id="country-list">
+                 <option value="Brasil">
+                 <option value="Estados Unidos">
+                 <option value="Canadá">
+                 <option value="Portugal">
+                 <option value="Reino Unido">
+                 <option value="França">
+                 <option value="Espanha">
+                 <option value="Bélgica">
+                 <option value="Suíça">
+                 </datalist>
+            <datalist id="objective-list">
+                 <option value="Negócios e Carreira">
+                 <option value="Viagens">
+                 <option value="Mudança de País (Imigração)">
+                 <option value="Hobbies e Cultura">
+                 <option value="Exames de Proficiência (TOEFL/IELTS)">
+            </datalist>
+        </div>
+    </div>
+
+    <script>
+        // =================================================================
+        // MAPA DE PAÍSES E IDIOMAS (SIMULADO PARA FILTRAGEM DINÂMICA)
+        // =================================================================
+        const COUNTRY_LANGUAGE_MAPPING = {
+            "Brasil": ["Português"],
+            "Portugal": ["Português"],
+            "Estados Unidos": ["Inglês"],
+            "Canadá": ["Inglês", "Francês"],
+            "França": ["Francês"],
+            "Espanha": ["Espanhol"],
+            "Reino Unido": ["Inglês"],
+            "Bélgica": ["Holandês", "Francês", "Alemão"],
+            "Suíça": ["Alemão", "Francês", "Italiano", "Romanche"],
+            // Fallback (se o país digitado não estiver no mapa)
+            "default": ["Português", "Inglês", "Francês", "Espanhol", "Alemão", "Italiano"] 
+        };
+
+        // =================================================================
+        // LÓGICA DE CONDICIONAIS
+        // =================================================================
+
+        // Lógica: Filtra o campo SELECT de Idioma com base no País escolhido
+        function updateLanguageSelect(countryInputId, languageSelectId) {
+            const country = document.getElementById(countryInputId).value.trim();
+            const languageSelect = document.getElementById(languageSelectId);
+            languageSelect.innerHTML = ''; // Limpa as opções anteriores
+
+            const languages = COUNTRY_LANGUAGE_MAPPING[country] || COUNTRY_LANGUAGE_MAPPING["default"];
+
+            if (country && languages.length > 0) {
+                // Adiciona a opção padrão (instrução)
+                const defaultOption = document.createElement('option');
+                defaultOption.value = "";
+                defaultOption.textContent = "Selecione o idioma falado pelo aluno";
+                defaultOption.disabled = true;
+                defaultOption.selected = true;
+                languageSelect.appendChild(defaultOption);
+
+                // Adiciona os idiomas oficiais do país
+                languages.forEach(lang => {
+                    const option = document.createElement('option');
+                    option.value = lang;
+                    option.textContent = lang;
+                    languageSelect.appendChild(option);
+                });
+            } else {
+                // Se o país não foi encontrado ou está vazio
+                const option = document.createElement('option');
+                option.value = "";
+                option.textContent = "País não reconhecido ou vazio.";
+                option.disabled = true;
+                option.selected = true;
+                languageSelect.appendChild(option);
+            }
+        }
+        
+        // Lógica: Exibir/Ocultar campos para Pets, Hobbies, etc.
+        function toggleFieldGroup(groupId, show) {
+            const groupElement = document.getElementById(groupId);
+            if (show) {
+                groupElement.classList.remove('hidden');
+                // Torna o input de texto dentro do grupo obrigatório se for Sim
+                groupElement.querySelectorAll('input, textarea').forEach(input => input.setAttribute('required', ''));
+            } else {
+                groupElement.classList.add('hidden');
+                // Remove a obrigatoriedade
+                groupElement.querySelectorAll('input, textarea').forEach(input => {
+                    input.removeAttribute('required');
+                    input.value = ''; // Limpa o valor para não salvar dados inválidos
+                });
+            }
+        }
+
+        // LÓGICA CONDICIONAL: ESTADO CIVIL
+        function toggleSpouseFields(status) {
+            const spouseFields = document.getElementById('spouse-fields');
+            // Exibe se for 'Casado' ou 'Noivo' (Condicional)
+            if (status === 'Casado' || status === 'Noivo') {
+                spouseFields.classList.remove('hidden');
+            } else {
+                spouseFields.classList.add('hidden');
+                // Limpa e garante que o campo não seja obrigatório ao ocultar
+                spouseFields.querySelectorAll('input').forEach(input => {
+                    input.value = '';
+                });
+            }
+        }
+
+        // LÓGICA CONDICIONAL: FILHOS
+        function toggleChildrenFields(hasChildren) {
+            const childrenFields = document.getElementById('children-fields');
+            if (hasChildren) {
+                childrenFields.classList.remove('hidden');
+                childrenFields.querySelector('textarea').setAttribute('required', '');
+            } else {
+                childrenFields.classList.add('hidden');
+                childrenFields.querySelector('textarea').removeAttribute('required');
+                childrenFields.querySelector('textarea').value = '';
+            }
+        }
+
+        // SIMULAÇÃO DE ENVIO DO FORMULÁRIO (SALVAR ALUNO)
+        document.getElementById('new-student-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            
+            // 1. Coleta os dados e mapeia para o formato final (salvando 'Não' ou null para campos opcionais não marcados)
+            const studentData = {
+                // A. Contexto Geral (Campos Obrigatórios/Fixos)
+                name: form.elements.name.value.trim(),
+                countryOrigin: form.elements.countryOrigin.value.trim(),
+                nativeLanguage: form.elements.nativeLanguage.value,
+                countryCurrent: form.elements.countryCurrent.value.trim(),
+                mostSpokenLanguage: form.elements.mostSpokenLanguage.value,
+                profession: form.elements.profession.value.trim() || null,
+                segment: form.elements.segment.value.trim() || null,
+                objective: form.elements.objective.value.trim() || null,
+                
+                // B. Contexto Pessoal
+                maritalStatus: form.elements.maritalStatus.value,
+                isMarried: (form.elements.maritalStatus.value === 'Casado' || form.elements.maritalStatus.value === 'Noivo'),
+                spouseName: null,
+                spouseSpeaksTargetLanguage: null,
+            };
+            
+            // 2. Lógica Condicional: Estado Civil
+            if (studentData.isMarried) {
+                studentData.spouseName = form.elements.spouseName.value.trim() || null;
+                studentData.spouseSpeaksTargetLanguage = form.querySelector('input[name="spouseSpeaksTargetLanguage"]:checked')?.value === 'true';
+            }
+
+            // 3. Lógica Condicional: Filhos
+            const hasChildren = form.querySelector('input[name="hasChildren"]:checked')?.value === 'true';
+            studentData.children = hasChildren ? form.elements.children.value.trim() || "Sim, mas não detalhado" : "Não";
+            
+            // 4. Lógica Condicional: Pets, Hobbies, etc. (Coleta apenas se 'Sim')
+            const getOptionalDetail = (radioName, inputName) => {
+                return form.querySelector(`input[name="${radioName}"]:checked`)?.value === 'true' 
+                    ? form.elements[inputName].value.trim() || "Sim, mas não detalhado" // Garante que a resposta seja "Sim" se o campo foi exibido mas não preenchido
+                    : "Não";
+            };
+
+            studentData.pets = getOptionalDetail('hasPets', 'pets');
+            studentData.hobbies = getOptionalDetail('hasHobbies', 'hobbies');
+            studentData.favoriteMovies = getOptionalDetail('hasMovies', 'favoriteMovies');
+            studentData.favoriteMusic = getOptionalDetail('hasMusic', 'favoriteMusic');
+
+            // 5. Notas Vitais
+            studentData.vitalNotes = form.elements.vitalNotes.value.trim() || null;
+
+
+            // 6. SIMULAÇÃO DE SALVAMENTO
+            console.log("Dados do Novo Aluno Prontos para Salvar:", studentData);
+
+            // 7. Feedback e Redirecionamento
+            alert(`Aluno ${studentData.name} cadastrado com sucesso! Redirecionando para o Dashboard Principal. Verifique o console para ver o objeto de dados salvo.`);
+            
+            // Limpa o formulário e reseta condicionais
+            form.reset();
+            toggleSpouseFields(form.elements.maritalStatus.value);
+            toggleChildrenFields(false);
+            toggleFieldGroup('pets-details', false);
+            toggleFieldGroup('hobbies-details', false);
+            toggleFieldGroup('movies-details', false);
+            toggleFieldGroup('music-details', false);
+            
+            // Reseta os campos de idioma para o estado inicial
+            document.getElementById('reg-nativeLanguage').innerHTML = '<option value="" disabled selected>Escolha o País Primeiro</option>';
+            document.getElementById('reg-mostSpokenLanguage').innerHTML = '<option value="" disabled selected>Escolha o País Primeiro</option>';
+        });
+        
+        // =================================================================
+        // INICIALIZAÇÃO
+        // =================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            // Garante que a lógica condicional inicial esteja correta
+            toggleSpouseFields(document.getElementById('reg-maritalStatus').value);
+            toggleChildrenFields(false);
+            toggleFieldGroup('pets-details', false);
+            toggleFieldGroup('hobbies-details', false);
+            toggleFieldGroup('movies-details', false);
+            toggleFieldGroup('music-details', false);
+        });
+    </script>
+</body>
+</html>
