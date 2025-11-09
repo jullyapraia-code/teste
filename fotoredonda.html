@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Avatar com Bandeira</title>
+    
+    <style>
+        body {
+            /* Apenas para centralizar e melhorar a visualização na página */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+            font-family: sans-serif;
+        }
+
+        /* 1. Container que envolve as duas imagens */
+        .avatar-container {
+            /* É crucial que o container tenha position: relative para servir de referência. */
+            position: relative; 
+            display: inline-block; 
+            /* Adicionar um pequeno espaço ao redor do círculo maior (Simulando o círculo de luz do seu exemplo) */
+            padding: 5px; 
+            border-radius: 50%;
+            background-color: white; /* Fundo branco ou claro para a borda */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 2. Estilo para a imagem de Perfil (O círculo maior) */
+        .avatar-perfil {
+            /* Defina o tamanho que você quer para a foto principal */
+            width: 180px; 
+            height: 180px;
+            /* Faz a imagem ficar perfeitamente circular */
+            border-radius: 50%; 
+            /* Garante que a imagem preencha o círculo sem distorcer */
+            object-fit: cover; 
+            display: block;
+        }
+
+        /* 3. Estilo para o círculo da Bandeira/Ícone (O círculo menor sobreposto) */
+        .avatar-badge {
+            /* É crucial que o ícone tenha position: absolute para ser posicionado livremente */
+            position: absolute;
+            /* Defina o tamanho para a bandeira/ícone */
+            width: 50px; 
+            height: 50px;
+            /* Faz a imagem da bandeira ficar perfeitamente circular */
+            border-radius: 50%; 
+            object-fit: cover;
+            
+            /* CONFIGURAÇÃO DE POSIÇÃO */
+            /* Ajuste o 'bottom' e o 'right' para mudar a posição da bandeira */
+            bottom: -5px; /* Move 5px para fora da borda inferior */
+            right: -5px; /* Move 5px para fora da borda direita */
+            
+            /* Opcional: Adicionar uma borda branca grossa para destacar */
+            border: 4px solid white;
+            /* Opcional: Adicionar uma sombra */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            
+            /* Garante que a badge fique sempre por cima da foto de perfil */
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="avatar-container">
+        
+        <img 
+            src="https://via.placeholder.com/180/808080/FFFFFF?text=SUA+FOTO" 
+            alt="Sua Foto de Perfil" 
+            class="avatar-perfil"
+        >
+        
+        <img 
+            src="https://via.placeholder.com/50/FF0000/FFFFFF?text=BR" 
+            alt="Bandeira do País" 
+            class="avatar-badge"
+        >
+    </div>
+
+</body>
+</html>
