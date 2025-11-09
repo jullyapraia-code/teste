@@ -1,65 +1,67 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-<meta charset="UTF-8">
-<title>País, Bandeira e Idioma</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 40px;
-  }
+  <meta charset="UTF-8">
+  <title>País, Bandeira e Idioma</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+    }
 
-  h1 {
-    color: #333;
-  }
+    h1 {
+      color: #333;
+    }
 
-  .search-container {
-    margin-top: 20px;
-    width: 300px;
-    text-align: center;
-  }
+    .search-container {
+      margin-top: 20px;
+      width: 300px;
+      text-align: center;
+    }
 
-  input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #aaa;
-    border-radius: 5px;
-    font-size: 16px;
-  }
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #aaa;
+      border-radius: 5px;
+      font-size: 16px;
+    }
 
-  select {
-    width: 100%;
-    margin-top: 10px;
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 5px;
-  }
+    select {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+    }
 
-  #flag {
-    margin-top: 20px;
-    text-align: center;
-  }
+    #flag {
+      margin-top: 20px;
+      text-align: center;
+    }
 
-  #flag img {
-    width: 120px;
-    border-radius: 5px;
-    box-shadow: 0 0 8px rgba(0,0,0,0.2);
-  }
+    #flag img {
+      width: 120px;
+      border-radius: 5px;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+    }
 
-  #languages {
-    margin-top: 20px;
-    text-align: center;
-  }
+    #languages {
+      margin-top: 20px;
+      text-align: center;
+    }
 
-  #languages select {
-    width: 200px;
-  }
-</style>
+    #languages select {
+      width: 200px;
+    }
+  </style>
 </head>
+
 <body>
   <h1>Escolha o País</h1>
   <div class="search-container">
@@ -70,97 +72,308 @@
   <div id="flag"></div>
   <div id="languages"></div>
 
-<script>
-  // Lista de países e idiomas oficiais
-  const countries = {
-    "Brasil": { code: "br", languages: ["Português"] },
-    "Canadá": { code: "ca", languages: ["Inglês", "Francês"] },
-    "Japão": { code: "jp", languages: ["Japonês"] },
-    "Estados Unidos": { code: "us", languages: ["Inglês"] },
-    "Alemanha": { code: "de", languages: ["Alemão"] },
-    "França": { code: "fr", languages: ["Francês"] },
-    "Espanha": { code: "es", languages: ["Espanhol"] },
-    "Itália": { code: "it", languages: ["Italiano"] },
-    "Portugal": { code: "pt", languages: ["Português"] },
-    "China": { code: "cn", languages: ["Mandarim"] },
-    "Índia": { code: "in", languages: ["Hindi", "Inglês"] },
-    "Rússia": { code: "ru", languages: ["Russo"] },
-    "Suíça": { code: "ch", languages: ["Alemão", "Francês", "Italiano", "Romanche"] },
-    "África do Sul": { code: "za", languages: ["Zulu", "Africâner", "Inglês", "Xhosa"] },
-    "México": { code: "mx", languages: ["Espanhol"] },
-    "Argentina": { code: "ar", languages: ["Espanhol"] },
-    "Coreia do Sul": { code: "kr", languages: ["Coreano"] },
-    "Egito": { code: "eg", languages: ["Árabe"] },
-    "Turquia": { code: "tr", languages: ["Turco"] },
-    "Canadá Francês": { code: "ca", languages: ["Francês"] },
-    "Austrália": { code: "au", languages: ["Inglês"] },
-    "Nova Zelândia": { code: "nz", languages: ["Inglês", "Maori"] },
-    "Bélgica": { code: "be", languages: ["Francês", "Holandês", "Alemão"] },
-    "Suécia": { code: "se", languages: ["Sueco"] },
-    "Noruega": { code: "no", languages: ["Norueguês"] },
-    "Finlândia": { code: "fi", languages: ["Finlandês", "Sueco"] },
-    "Dinamarca": { code: "dk", languages: ["Dinamarquês"] },
-    "Holanda": { code: "nl", languages: ["Holandês"] },
-    "Polônia": { code: "pl", languages: ["Polonês"] },
-    "Grécia": { code: "gr", languages: ["Grego"] },
-    "Ucrânia": { code: "ua", languages: ["Ucraniano"] },
-    "Vietnã": { code: "vn", languages: ["Vietnamita"] },
-    "Tailândia": { code: "th", languages: ["Tailandês"] },
-    "Filipinas": { code: "ph", languages: ["Filipino", "Inglês"] },
-    "Paquistão": { code: "pk", languages: ["Urdu", "Inglês"] },
-    "Bangladesh": { code: "bd", languages: ["Bengali"] },
-    "Indonésia": { code: "id", languages: ["Indonésio"] },
-    "Malásia": { code: "my", languages: ["Malaio"] },
-    "Singapura": { code: "sg", languages: ["Inglês", "Malaio", "Mandarim", "Tâmil"] }
-  };
+  <script>
+    // Lista de países e idiomas oficiais
+    const countries = {
+      "Andorra": { code: "ad", languages: ["ca"] },
+      "Emirados Árabes Unidos": { code: "ae", languages: ["ar"] },
+      "Afeganistão": { code: "af", languages: ["ps", "fa"] },
+      "Antígua e Barbuda": { code: "ag", languages: ["en"] },
+      "Anguila": { code: "ai", languages: ["en"] },
+      "Albânia": { code: "al", languages: ["sq"] },
+      "Armênia": { code: "am", languages: ["hy"] },
+      "Angola": { code: "ao", languages: ["pt"] },
+      "Antártida": { code: "aq", languages: [] },
+      "Argentina": { code: "ar", languages: ["es"] },
+      "Samoa Americana": { code: "as", languages: ["en", "sm"] },
+      "Áustria": { code: "at", languages: ["de"] },
+      "Austrália": { code: "au", languages: ["en"] },
+      "Aruba": { code: "aw", languages: ["nl", "pap"] },
+      "Ilhas Åland": { code: "ax", languages: ["sv"] },
+      "Azerbaijão": { code: "az", languages: ["az"] },
+      "Bósnia e Herzegovina": { code: "ba", languages: ["bs", "hr", "sr"] },
+      "Barbados": { code: "bb", languages: ["en"] },
+      "Bangladesh": { code: "bd", languages: ["bn"] },
+      "Bélgica": { code: "be", languages: ["nl", "fr", "de"] },
+      "Burquina Fasso": { code: "bf", languages: ["fr"] },
+      "Bulgária": { code: "bg", languages: ["bg"] },
+      "Barém": { code: "bh", languages: ["ar"] },
+      "Burundi": { code: "bi", languages: ["rn", "fr"] },
+      "Benim": { code: "bj", languages: ["fr"] },
+      "São Bartolomeu": { code: "bl", languages: ["fr"] },
+      "Bermudas": { code: "bm", languages: ["en"] },
+      "Brunei": { code: "bn", languages: ["ms"] },
+      "Bolívia": { code: "bo", languages: ["es", "qu", "ay"] },
+      "Países Baixos Caribenhos": { code: "bq", languages: ["nl", "pap"] },
+      "Brasil": { code: "br", languages: ["pt"] },
+      "Bahamas": { code: "bs", languages: ["en"] },
+      "Butão": { code: "bt", languages: ["dz"] },
+      "Ilha Bouvet": { code: "bv", languages: [] },
+      "Botswana": { code: "bw", languages: ["en", "tn"] },
+      "Bielorrússia": { code: "by", languages: ["be", "ru"] },
+      "Belize": { code: "bz", languages: ["en", "es"] },
+      "Canadá": { code: "ca", languages: ["en", "fr"] },
+      "Ilhas Cocos": { code: "cc", languages: ["en"] },
+      "República Democrática do Congo": { code: "cd", languages: ["fr", "ln", "sw"] },
+      "República Centro-Africana": { code: "cf", languages: ["fr", "sg"] },
+      "República do Congo": { code: "cg", languages: ["fr", "ln"] },
+      "Suíça": { code: "ch", languages: ["de", "fr", "it", "rm"] },
+      "Costa do Marfim": { code: "ci", languages: ["fr"] },
+      "Ilhas Cook": { code: "ck", languages: ["en", "rar"] },
+      "Chile": { code: "cl", languages: ["es"] },
+      "Camarões": { code: "cm", languages: ["fr", "en"] },
+      "China": { code: "cn", languages: ["zh"] },
+      "Colômbia": { code: "co", languages: ["es"] },
+      "Costa Rica": { code: "cr", languages: ["es"] },
+      "Cuba": { code: "cu", languages: ["es"] },
+      "Cabo Verde": { code: "cv", languages: ["pt"] },
+      "Curaçau": { code: "cw", languages: ["pap", "nl"] },
+      "Ilha do Natal": { code: "cx", languages: ["en"] },
+      "Chipre": { code: "cy", languages: ["el", "tr"] },
+      "Chéquia": { code: "cz", languages: ["cs"] },
+      "Alemanha": { code: "de", languages: ["de"] },
+      "Djibuti": { code: "dj", languages: ["fr", "ar"] },
+      "Dinamarca": { code: "dk", languages: ["da"] },
+      "Dominica": { code: "dm", languages: ["en"] },
+      "República Dominicana": { code: "do", languages: ["es"] },
+      "Argélia": { code: "dz", languages: ["ar"] },
+      "Equador": { code: "ec", languages: ["es"] },
+      "Estónia": { code: "ee", languages: ["et"] },
+      "Egito": { code: "eg", languages: ["ar"] },
+      "Saara Ocidental": { code: "eh", languages: ["ar"] },
+      "Eritreia": { code: "er", languages: ["ti", "ar"] },
+      "Espanha": { code: "es", languages: ["es", "ca", "eu", "gl"] },
+      "Etiópia": { code: "et", languages: ["am"] },
+      "Finlândia": { code: "fi", languages: ["fi", "sv"] },
+      "Fiji": { code: "fj", languages: ["en", "fj", "hi"] },
+      "Ilhas Malvinas": { code: "fk", languages: ["en"] },
+      "Micronésia": { code: "fm", languages: ["en"] },
+      "Ilhas Feroé": { code: "fo", languages: ["fo"] },
+      "França": { code: "fr", languages: ["fr"] },
+      "Gabão": { code: "ga", languages: ["fr"] },
+      "Reino Unido": { code: "gb", languages: ["en"] },
+      "Granada": { code: "gd", languages: ["en"] },
+      "Geórgia": { code: "ge", languages: ["ka"] },
+      "Guiana Francesa": { code: "gf", languages: ["fr"] },
+      "Guernsey": { code: "gg", languages: ["en"] },
+      "Gana": { code: "gh", languages: ["en"] },
+      "Gibraltar": { code: "gi", languages: ["en"] },
+      "Gronelândia": { code: "gl", languages: ["kl", "da"] },
+      "Gâmbia": { code: "gm", languages: ["en"] },
+      "Guiné": { code: "gn", languages: ["fr"] },
+      "Guadalupe": { code: "gp", languages: ["fr"] },
+      "Guiné Equatorial": { code: "gq", languages: ["es", "fr", "pt"] },
+      "Grécia": { code: "gr", languages: ["el"] },
+      "Ilhas Geórgia do Sul e Sandwich do Sul": { code: "gs", languages: [] },
+      "Guatemala": { code: "gt", languages: ["es"] },
+      "Guam": { code: "gu", languages: ["en", "ch"] },
+      "Guiné-Bissau": { code: "gw", languages: ["pt"] },
+      "Guiana": { code: "gy", languages: ["en"] },
+      "Hong Kong": { code: "hk", languages: ["zh", "en"] },
+      "Ilha Heard e Ilhas McDonald": { code: "hm", languages: [] },
+      "Honduras": { code: "hn", languages: ["es"] },
+      "Croácia": { code: "hr", languages: ["hr"] },
+      "Haiti": { code: "ht", languages: ["ht", "fr"] },
+      "Hungria": { code: "hu", languages: ["hu"] },
+      "Indonésia": { code: "id", languages: ["id"] },
+      "Irlanda": { code: "ie", languages: ["en", "ga"] },
+      "Israel": { code: "il", languages: ["he", "ar"] },
+      "Ilha de Man": { code: "im", languages: ["en", "gv"] },
+      "Índia": { code: "in", languages: ["hi", "en"] },
+      "Território Britânico do Oceano Índico": { code: "io", languages: ["en"] },
+      "Iraque": { code: "iq", languages: ["ar", "ku"] },
+      "Irã": { code: "ir", languages: ["fa"] },
+      "Islândia": { code: "is", languages: ["is"] },
+      "Itália": { code: "it", languages: ["it"] },
+      "Jersey": { code: "je", languages: ["en", "fr"] },
+      "Jamaica": { code: "jm", languages: ["en"] },
+      "Jordânia": { code: "jo", languages: ["ar"] },
+      "Japão": { code: "jp", languages: ["ja"] },
+      "Quênia": { code: "ke", languages: ["sw", "en"] },
+      "Quirguistão": { code: "kg", languages: ["ky", "ru"] },
+      "Camboja": { code: "kh", languages: ["km"] },
+      "Kiribati": { code: "ki", languages: ["en"] },
+      "Comores": { code: "km", languages: ["ar", "fr"] },
+      "São Cristóvão e Neves": { code: "kn", languages: ["en"] },
+      "Coreia do Norte": { code: "kp", languages: ["ko"] },
+      "Coreia do Sul": { code: "kr", languages: ["ko"] },
+      "Kuwait": { code: "kw", languages: ["ar"] },
+      "Ilhas Caimã": { code: "ky", languages: ["en"] },
+      "Cazaquistão": { code: "kz", languages: ["kk", "ru"] },
+      "Laos": { code: "la", languages: ["lo"] },
+      "Líbano": { code: "lb", languages: ["ar"] },
+      "Santa Lúcia": { code: "lc", languages: ["en"] },
+      "Liechtenstein": { code: "li", languages: ["de"] },
+      "Sri Lanka": { code: "lk", languages: ["si", "ta"] },
+      "Libéria": { code: "lr", languages: ["en"] },
+      "Lesoto": { code: "ls", languages: ["en", "st"] },
+      "Lituânia": { code: "lt", languages: ["lt"] },
+      "Luxemburgo": { code: "lu", languages: ["lb", "fr", "de"] },
+      "Letónia": { code: "lv", languages: ["lv"] },
+      "Líbia": { code: "ly", languages: ["ar"] },
+      "Marrocos": { code: "ma", languages: ["ar", "ber"] },
+      "Mónaco": { code: "mc", languages: ["fr"] },
+      "Moldávia": { code: "md", languages: ["ro"] },
+      "Montenegro": { code: "me", languages: ["sr", "me"] },
+      "São Martinho": { code: "mf", languages: ["fr"] },
+      "Madagáscar": { code: "mg", languages: ["mg", "fr"] },
+      "Ilhas Marshall": { code: "mh", languages: ["en", "mh"] },
+      "Macedônia do Norte": { code: "mk", languages: ["mk"] },
+      "Mali": { code: "ml", languages: ["fr"] },
+      "Myanmar": { code: "mm", languages: ["my"] },
+      "Mongólia": { code: "mn", languages: ["mn"] },
+      "Macau": { code: "mo", languages: ["zh", "pt"] },
+      "Marianas Setentrionais": { code: "mp", languages: ["en", "ch"] },
+      "Martinica": { code: "mq", languages: ["fr"] },
+      "Mauritânia": { code: "mr", languages: ["ar"] },
+      "Monserrate": { code: "ms", languages: ["en"] },
+      "Malta": { code: "mt", languages: ["mt", "en"] },
+      "Ilhas Maurícias": { code: "mu", languages: ["en", "fr"] },
+      "Maldivas": { code: "mv", languages: ["dv"] },
+      "Malawi": { code: "mw", languages: ["en", "ny"] },
+      "México": { code: "mx", languages: ["es"] },
+      "Malásia": { code: "my", languages: ["ms"] },
+      "Moçambique": { code: "mz", languages: ["pt"] },
+      "Namíbia": { code: "na", languages: ["en"] },
+      "Nova Caledônia": { code: "nc", languages: ["fr"] },
+      "Níger": { code: "ne", languages: ["fr"] },
+      "Ilha Norfolk": { code: "nf", languages: ["en"] },
+      "Nigéria": { code: "ng", languages: ["en", "ha", "ig", "yo"] },
+      "Nicarágua": { code: "ni", languages: ["es"] },
+      "Países Baixos": { code: "nl", languages: ["nl"] },
+      "Noruega": { code: "no", languages: ["no", "nn", "nb"] },
+      "Nepal": { code: "np", languages: ["ne"] },
+      "Nauru": { code: "nr", languages: ["en", "na"] },
+      "Niue": { code: "nu", languages: ["en"] },
+      "Nova Zelândia": { code: "nz", languages: ["en", "mi"] },
+      "Omã": { code: "om", languages: ["ar"] },
+      "Panamá": { code: "pa", languages: ["es"] },
+      "Peru": { code: "pe", languages: ["es", "qu", "ay"] },
+      "Polinésia Francesa": { code: "pf", languages: ["fr"] },
+      "Papua-Nova Guiné": { code: "pg", languages: ["en", "tpi", "ho"] },
+      "Filipinas": { code: "ph", languages: ["fil", "en"] },
+      "Paquistão": { code: "pk", languages: ["ur", "en"] },
+      "Polónia": { code: "pl", languages: ["pl"] },
+      "São Pedro e Miquelão": { code: "pm", languages: ["fr"] },
+      "Pitcairn": { code: "pn", languages: ["en"] },
+      "Porto Rico": { code: "pr", languages: ["es", "en"] },
+      "Palestina": { code: "ps", languages: ["ar"] },
+      "Portugal": { code: "pt", languages: ["pt"] },
+      "Palau": { code: "pw", languages: ["en", "pau"] },
+      "Paraguai": { code: "py", languages: ["es", "gn"] },
+      "Catar": { code: "qa", languages: ["ar"] },
+      "Reunião": { code: "re", languages: ["fr"] },
+      "Roménia": { code: "ro", languages: ["ro"] },
+      "Sérvia": { code: "rs", languages: ["sr"] },
+      "Rússia": { code: "ru", languages: ["ru"] },
+      "Ruanda": { code: "rw", languages: ["rw", "fr", "en"] },
+      "Arábia Saudita": { code: "sa", languages: ["ar"] },
+      "Ilhas Salomão": { code: "sb", languages: ["en"] },
+      "Seicheles": { code: "sc", languages: ["fr", "en"] },
+      "Sudão": { code: "sd", languages: ["ar", "en"] },
+      "Suécia": { code: "se", languages: ["sv"] },
+      "Singapura": { code: "sg", languages: ["en", "ms", "ta", "zh"] },
+      "Santa Helena": { code: "sh", languages: ["en"] },
+      "Eslovênia": { code: "si", languages: ["sl"] },
+      "Svalbard e Jan Mayen": { code: "sj", languages: ["no"] },
+      "Eslováquia": { code: "sk", languages: ["sk"] },
+      "Serra Leoa": { code: "sl", languages: ["en"] },
+      "San Marino": { code: "sm", languages: ["it"] },
+      "Senegal": { code: "sn", languages: ["fr"] },
+      "Somália": { code: "so", languages: ["so", "ar"] },
+      "Suriname": { code: "sr", languages: ["nl"] },
+      "Sudão do Sul": { code: "ss", languages: ["en"] },
+      "São Tomé e Príncipe": { code: "st", languages: ["pt"] },
+      "El Salvador": { code: "sv", languages: ["es"] },
+      "São Martinho": { code: "sx", languages: ["nl", "en"] },
+      "Síria": { code: "sy", languages: ["ar"] },
+      "Essuatíni": { code: "sz", languages: ["en", "ss"] },
+      "Turcas e Caicos": { code: "tc", languages: ["en"] },
+      "Chade": { code: "td", languages: ["fr", "ar"] },
+      "Terras Austrais e Antárticas Francesas": { code: "tf", languages: ["fr"] },
+      "Togo": { code: "tg", languages: ["fr"] },
+      "Tailândia": { code: "th", languages: ["th"] },
+      "Tajiquistão": { code: "tj", languages: ["tg"] },
+      "Toquelau": { code: "tk", languages: ["en"] },
+      "Timor-Leste": { code: "tl", languages: ["pt", "tet"] },
+      "Turquemenistão": { code: "tm", languages: ["tk"] },
+      "Tunísia": { code: "tn", languages: ["ar"] },
+      "Tonga": { code: "to", languages: ["to", "en"] },
+      "Turquia": { code: "tr", languages: ["tr"] },
+      "Trinidad e Tobago": { code: "tt", languages: ["en"] },
+      "Tuvalu": { code: "tv", languages: ["en"] },
+      "Taiwan": { code: "tw", languages: ["zh"] },
+      "Tanzânia": { code: "tz", languages: ["sw", "en"] },
+      "Ucrânia": { code: "ua", languages: ["uk"] },
+      "Uganda": { code: "ug", languages: ["en", "sw"] },
+      "Ilhas Menores Distantes dos Estados Unidos": { code: "um", languages: ["en"] },
+      "Estados Unidos": { code: "us", languages: ["en"] },
+      "Uruguai": { code: "uy", languages: ["es"] },
+      "Uzbequistão": { code: "uz", languages: ["uz"] },
+      "Vaticano": { code: "va", languages: ["la", "it"] },
+      "São Vicente e Granadinas": { code: "vc", languages: ["en"] },
+      "Venezuela": { code: "ve", languages: ["es"] },
+      "Ilhas Virgens Britânicas": { code: "vg", languages: ["en"] },
+      "Ilhas Virgens Americanas": { code: "vi", languages: ["en"] },
+      "Vietname": { code: "vn", languages: ["vi"] },
+      "Vanuatu": { code: "vu", languages: ["bi", "en", "fr"] },
+      "Wallis e Futuna": { code: "wf", languages: ["fr"] },
+      "Samoa": { code: "ws", languages: ["sm", "en"] },
+      "Iêmen": { code: "ye", languages: ["ar"] },
+      "Mayotte": { code: "yt", languages: ["fr"] },
+      "África do Sul": { code: "za", languages: ["en", "af", "zu", "xh", "st", "tn", "ts", "ss", "ve", "nr", "nso"] },
+      "Zâmbia": { code: "zm", languages: ["en"] },
+      "Zimbabwe": { code: "zw", languages: ["en", "sn", "nd"] }
+    };
 
-  const countrySelect = document.getElementById("countrySelect");
-  const searchBox = document.getElementById("searchBox");
-  const flagDiv = document.getElementById("flag");
-  const languagesDiv = document.getElementById("languages");
+    const countrySelect = document.getElementById("countrySelect");
+    const searchBox = document.getElementById("searchBox");
+    const flagDiv = document.getElementById("flag");
+    const languagesDiv = document.getElementById("languages");
 
-  function populateCountries(filter = "") {
-    countrySelect.innerHTML = "";
-    Object.keys(countries)
-      .filter(name => name.toLowerCase().includes(filter.toLowerCase()))
-      .forEach(name => {
-        const opt = document.createElement("option");
-        opt.value = name;
-        opt.textContent = name;
-        countrySelect.appendChild(opt);
-      });
-  }
+    function populateCountries(filter = "") {
+      countrySelect.innerHTML = "";
+      Object.keys(countries)
+        .filter(name => name.toLowerCase().includes(filter.toLowerCase()))
+        .forEach(name => {
+          const opt = document.createElement("option");
+          opt.value = name;
+          opt.textContent = name;
+          countrySelect.appendChild(opt);
+        });
+    }
 
-  populateCountries();
+    populateCountries();
 
-  searchBox.addEventListener("input", e => {
-    populateCountries(e.target.value);
-  });
+    searchBox.addEventListener("input", e => {
+      populateCountries(e.target.value);
+    });
 
-  countrySelect.addEventListener("change", () => {
-    const selected = countrySelect.value;
-    const country = countries[selected];
-    if (!country) return;
+    countrySelect.addEventListener("change", () => {
+      const selected = countrySelect.value;
+      const country = countries[selected];
+      if (!country) return;
 
-    // Mostra bandeira
-    flagDiv.innerHTML = `
+      // Mostra bandeira
+      flagDiv.innerHTML = `
       <h3>${selected}</h3>
       <img src="https://flagcdn.com/w160/${country.code}.png" alt="Bandeira de ${selected}">
     `;
 
-    // Mostra idiomas
-    languagesDiv.innerHTML = "";
-    if (country.languages.length === 1) {
-      languagesDiv.innerHTML = `<p>Idioma: <strong>${country.languages[0]}</strong></p>`;
-    } else {
-      let html = `<label>Selecione o idioma:</label><br><select>`;
-      country.languages.forEach(lang => {
-        html += `<option>${lang}</option>`;
-      });
-      html += `</select>`;
-      languagesDiv.innerHTML = html;
-    }
-  });
-</script>
+      // Mostra idiomas
+      languagesDiv.innerHTML = "";
+      if (country.languages.length === 1) {
+        languagesDiv.innerHTML = `<p>Idioma: <strong>${country.languages[0]}</strong></p>`;
+      } else {
+        let html = `<label>Selecione o idioma:</label><br><select>`;
+        country.languages.forEach(lang => {
+          html += `<option>${lang}</option>`;
+        });
+        html += `</select>`;
+        languagesDiv.innerHTML = html;
+      }
+    });
+  </script>
 </body>
+
 </html>
