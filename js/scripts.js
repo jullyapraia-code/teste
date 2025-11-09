@@ -88,10 +88,11 @@ async function carregarHTML(url, elementoId) {
     const response = await fetch(url); // Busca o conteúdo do arquivo
     const html = await response.text(); // Converte a resposta para texto (HTML)
     document.getElementById(elementoId).innerHTML = html; // Insere na div
+     // ⚡ Re-renderiza os ícones Lucide dentro do conteúdo carregado
+    lucide.createIcons();
 }
+
 
 // Chama a função para carregar o cabeçalho
 carregarHTML('coluna_direita.html', 'top10alunos');
-document.addEventListener('DOMContentLoaded', () => {
-    lucide.createIcons();
-});
+carregarHTML('cabecalho.html', 'cabecalho');
