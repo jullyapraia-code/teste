@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>País, Bandeira e Idioma</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+  }
+
+  h1 {
+    color: #333;
+  }
+
+  .search-container {
+    margin-top: 20px;
+    width: 300px;
+    text-align: center;
+  }
+
+  input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+
+  select {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+  }
+
+  #flag {
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  #flag img {
+    width: 120px;
+    border-radius: 5px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.2);
+  }
+
+  #languages {
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  #languages select {
+    width: 200px;
+  }
+</style>
+</head>
+<body>
+  <h1>Escolha o País</h1>
+  <div class="search-container">
+    <input type="text" id="searchBox" placeholder="Digite o nome do país...">
+    <select id="countrySelect" size="10"></select>
+  </div>
+
+  <div id="flag"></div>
+  <div id="languages"></div>
+
+<script>
+  // Lista de países e idiomas oficiais
+  const countries = {
+    "Brasil": { code: "br", languages: ["Português"] },
+    "Canadá": { code: "ca", languages: ["Inglês", "Francês"] },
+    "Japão": { code: "jp", languages: ["Japonês"] },
+    "Estados Unidos": { code: "us", languages: ["Inglês"] },
+    "Alemanha": { code: "de", languages: ["Alemão"] },
+    "França": { code: "fr", languages: ["Francês"] },
+    "Espanha": { code: "es", languages: ["Espanhol"] },
+    "Itália": { code: "it", languages: ["Italiano"] },
+    "Portugal": { code: "pt", languages: ["Português"] },
+    "China": { code: "cn", languages: ["Mandarim"] },
+    "Índia": { code: "in", languages: ["Hindi", "Inglês"] },
+    "Rússia": { code: "ru", languages: ["Russo"] },
+    "Suíça": { code: "ch", languages: ["Alemão", "Francês", "Italiano", "Romanche"] },
+    "África do Sul": { code: "za", languages: ["Zulu", "Africâner", "Inglês", "Xhosa"] },
+    "México": { code: "mx", languages: ["Espanhol"] },
+    "Argentina": { code: "ar", languages: ["Espanhol"] },
+    "Coreia do Sul": { code: "kr", languages: ["Coreano"] },
+    "Egito": { code: "eg", languages: ["Árabe"] },
+    "Turquia": { code: "tr", languages: ["Turco"] },
+    "Canadá Francês": { code: "ca", languages: ["Francês"] },
+    "Austrália": { code: "au", languages: ["Inglês"] },
+    "Nova Zelândia": { code: "nz", languages: ["Inglês", "Maori"] },
+    "Bélgica": { code: "be", languages: ["Francês", "Holandês", "Alemão"] },
+    "Suécia": { code: "se", languages: ["Sueco"] },
+    "Noruega": { code: "no", languages: ["Norueguês"] },
+    "Finlândia": { code: "fi", languages: ["Finlandês", "Sueco"] },
+    "Dinamarca": { code: "dk", languages: ["Dinamarquês"] },
+    "Holanda": { code: "nl", languages: ["Holandês"] },
+    "Polônia": { code: "pl", languages: ["Polonês"] },
+    "Grécia": { code: "gr", languages: ["Grego"] },
+    "Ucrânia": { code: "ua", languages: ["Ucraniano"] },
+    "Vietnã": { code: "vn", languages: ["Vietnamita"] },
+    "Tailândia": { code: "th", languages: ["Tailandês"] },
+    "Filipinas": { code: "ph", languages: ["Filipino", "Inglês"] },
+    "Paquistão": { code: "pk", languages: ["Urdu", "Inglês"] },
+    "Bangladesh": { code: "bd", languages: ["Bengali"] },
+    "Indonésia": { code: "id", languages: ["Indonésio"] },
+    "Malásia": { code: "my", languages: ["Malaio"] },
+    "Singapura": { code: "sg", languages: ["Inglês", "Malaio", "Mandarim", "Tâmil"] }
+  };
+
+  const countrySelect = document.getElementById("countrySelect");
+  const searchBox = document.getElementById("searchBox");
+  const flagDiv = document.getElementById("flag");
+  const languagesDiv = document.getElementById("languages");
+
+  function populateCountries(filter = "") {
+    countrySelect.innerHTML = "";
+    Object.keys(countries)
+      .filter(name => name.toLowerCase().includes(filter.toLowerCase()))
+      .forEach(name => {
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        countrySelect.appendChild(opt);
+      });
+  }
+
+  populateCountries();
+
+  searchBox.addEventListener("input", e => {
+    populateCountries(e.target.value);
+  });
+
+  countrySelect.addEventListener("change", () => {
+    const selected = countrySelect.value;
+    const country = countries[selected];
+    if (!country) return;
+
+    // Mostra bandeira
+    flagDiv.innerHTML = `
+      <h3>${selected}</h3>
+      <img src="https://flagcdn.com/w160/${country.code}.png" alt="Bandeira de ${selected}">
+    `;
+
+    // Mostra idiomas
+    languagesDiv.innerHTML = "";
+    if (country.languages.length === 1) {
+      languagesDiv.innerHTML = `<p>Idioma: <strong>${country.languages[0]}</strong></p>`;
+    } else {
+      let html = `<label>Selecione o idioma:</label><br><select>`;
+      country.languages.forEach(lang => {
+        html += `<option>${lang}</option>`;
+      });
+      html += `</select>`;
+      languagesDiv.innerHTML = html;
+    }
+  });
+</script>
+</body>
+</html>
