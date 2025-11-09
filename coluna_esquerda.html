@@ -1,0 +1,20 @@
+<!-- B.1 COLUNA ESQUERDA (Lista de Alunos / Mobile Primary View) -->
+<div class="flex justify-between items-center border-b border-indigo-600 pb-2 mb-4 flex-shrink-0">
+    <h3 class="text-lg font-bold text-indigo-400">Lista de Alunos</h3>
+    <!-- Métrica Total de Alunos e Aulas -->
+    <div id="total-alunos-aulas" class="flex items-center space-x-3 text-sm font-medium text-slate-300">
+        <!-- Será preenchido pelo JS -->
+    </div>
+</div>
+
+<!-- Campo de Busca -->
+<div class="mb-4 relative flex-shrink-0">
+    <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+    <input type="text" onkeyup="filtrarAlunos(this.value)" placeholder="Buscar por Nome..."
+        class="w-full p-2 pl-10 text-sm bg-slate-700 border border-slate-600 rounded-md text-slate-200 placeholder-slate-400 focus:ring-indigo-500 focus:border-indigo-500">
+</div>
+
+<!-- Lista de Alunos (flex-grow: 1 no CSS) -->
+<div id="lista-alunos-geral" class="space-y-2">
+    <p class="placeholder-text">Lista de alunos será renderizada aqui...</p>
+</div>
